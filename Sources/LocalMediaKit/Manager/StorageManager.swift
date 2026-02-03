@@ -1,5 +1,5 @@
 //
-//  FileSystem.swift
+//  StorageManager.swift
 //  文件系统的包装
 //
 //  Created by 庄七七 on 2026/1/23.
@@ -10,7 +10,7 @@ import Foundation
 
 
 /// 文件系统操作封装
-public final class FileSystem: Sendable {
+public final class StorageManager: Sendable {
     /// 安全余量，默认50MB
     private let safetyMargin: Int64 = 50 * 1024 * 1024
     
