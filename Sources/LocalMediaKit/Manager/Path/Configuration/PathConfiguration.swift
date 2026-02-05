@@ -33,7 +33,7 @@ public struct PathConfiguration: Sendable {
         imageDirectory: String = MediaType.image.directory,
         livePhotoDirectory: String = MediaType.livePhoto.directory,
         videoDirectory: String = MediaType.video.directory,
-        cacheDirectory: String = "cache"
+        cacheDirectory: String = "Cache"
     ) {
         self.rootDirectory = rootDirectory
         self.imageDirectory = imageDirectory
@@ -46,5 +46,18 @@ public struct PathConfiguration: Sendable {
     /// 默认配置
     public static var `default`: PathConfiguration {
         return PathConfiguration()
+    }
+    
+    
+    /// 获取对应类型的子目录路径
+    public func subDirectory(for type: MediaType) -> String {
+        switch type {
+        case .image, .animatedImage:
+            return imageDirectory
+        case .livePhoto:
+            return livePhotoDirectory
+        case .video:
+            return videoDirectory
+        }
     }
 }

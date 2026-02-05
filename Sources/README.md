@@ -41,7 +41,8 @@
     let videoPath = getLivePhotoPath(fileName: videoFileName)
 
     视频：
-    let videoId = UUID().uuidStringlet ext = (videoURL.pathExtension.isEmpty ? "mp4" : videoURL.pathExtension).lowercased()
+    let videoId = UUID().uuidString
+    let ext = (videoURL.pathExtension.isEmpty ? "mp4" : videoURL.pathExtension).lowercased()
     let videoFileName = "\(videoId).\(ext)"
     let thumbnailFileName = "\(videoId)_thumb.jpg"
     

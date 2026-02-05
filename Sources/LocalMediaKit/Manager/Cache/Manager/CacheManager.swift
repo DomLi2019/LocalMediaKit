@@ -60,6 +60,14 @@ public final class CacheManager<T: Sendable>: Sendable {
     }
     
     
+    /// 图片写入缓存，自动计算开销
+    public func set(_ key: String, value: T) async where T: CacheCostCalculable {
+        let cost = value.cost
+        memoryCache.set(key, value: value, cost: cost)
+        /// TODO：写入磁盘缓存
+    }
+    
+    
     /// 清理指定缓存
     public func remove(_ key: String) {
         memoryCache.remove(key)
@@ -125,5 +133,39 @@ public final class CacheManager<T: Sendable>: Sendable {
             self?.cleanup()
         }
         #endif
+    }
+}
+
+
+
+
+// MARK: - 开销计算
+public protocol CacheCostCalculable {
+    var cost: Int { get }
+}
+
+
+extension UIImage: CacheCostCalculable {
+    public var cost: Int {
+        if let cgImage = cgImage {
+            let size = cgImage.bytesPerRow * cgImage.height
+            if size > 0 { return size }
+            
+            /// 如果bytesPerRow为0导致size == 0，则兜底使用bitsPerPixel计算
+            let bitsPerPixel = cgImage.bitsPerPixel
+            let bytesPerPixel = (bitsPerPixel + 7) / 8
+            return bytesPerPixel * cgImage.width * cgImage.height
+        }
+        
+        /// 获取cgImage失败，返回估算值
+        let width = Int(size.width * scale)
+        let height = Int(size.height * scale)
+        return width * height * 4
+    }
+}
+
+extension Data: CacheCostCalculable {
+    public var cost: Int {
+        return count
     }
 }

@@ -244,6 +244,19 @@ public final class StorageManager: Sendable {
         /// 返回临时文件路径（带拓展名）
         return tempDirectory.appendingPath(fileName)
     }
+    
+    
+    /// 随机创建临时文件路径
+    public func temporaryURL() -> URL {
+        /// 随机创建一个文件名 + 拓展名
+        let fileName = UUID().uuidString
+        
+        /// 获取系统默认临时路径
+        let tempDirectory = FileManager.default.temporaryDirectory
+        
+        /// 返回临时文件路径（带拓展名）
+        return tempDirectory.appendingPath(fileName)
+    }
 }
 
 

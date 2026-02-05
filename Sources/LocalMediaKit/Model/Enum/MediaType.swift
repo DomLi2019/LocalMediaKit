@@ -6,8 +6,9 @@
 //
 
 import Foundation
+import GRDB
 
-public enum MediaType: Int, Hashable, Equatable, Codable, Sendable {
+public enum MediaType: Int, Hashable, Equatable, Codable, Sendable, CaseIterable {
     case image = 0
     case livePhoto = 1
     case video = 2
@@ -32,14 +33,15 @@ public enum MediaType: Int, Hashable, Equatable, Codable, Sendable {
     /// 默认文件路径后缀
     public var directory: String {
         switch self {
-        case .image:
-            return "images"
+        case .image, .animatedImage:
+            return "Images"
         case .livePhoto:
-            return "livePhotos"
+            return "LivePhotos"
         case .video:
-            return "videos"
-        case .animatedImage:
-            return "gifs"
+            return "Videos"
         }
     }
 }
+
+/// GRDB支持
+extension MediaType: DatabaseValueConvertible {}
