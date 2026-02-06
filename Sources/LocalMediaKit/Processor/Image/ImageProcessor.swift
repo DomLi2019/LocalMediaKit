@@ -193,4 +193,78 @@ public final class ImageProcessor: Sendable {
         
         return UIImage(cgImage: downsampledImage)
     }
+    
+    
+    
+    
+    // MARK: - 格式
+    /// 图片格式检测
+    public func detectFormat(from data: Data) -> ImageFormat? {
+        guard data.count >= 12 else { return nil }
+
+        let bytes = [UInt8](data.prefix(12))
+
+        // JPEG: FF D8 FF
+        if bytes[0] == 0xFF && bytes[1] == 0xD8 && bytes[2] == 0xFF {
+            return .jpeg(quality: nil)
+        }
+
+        // PNG: 89 50 4E 47 0D 0A 1A 0A
+        if bytes[0] == 0x89 && bytes[1] == 0x50 && bytes[2] == 0x4E && bytes[3] == 0x47 {
+            return .png
+        }
+
+        // GIF: 47 49 46 38
+        if bytes[0] == 0x47 && bytes[1] == 0x49 && bytes[2] == 0x46 && bytes[3] == 0x38 {
+            return .gif
+        }
+
+        // HEIC: check for ftyp
+        if data.count >= 12 {
+            let ftypRange = data[4..<8]
+            if let ftyp = String(data: ftypRange, encoding: .ascii), ftyp == "ftyp" {
+                let brandRange = data[8..<12]
+                if let brand = String(data: brandRange, encoding: .ascii) {
+                    if brand.hasPrefix("heic") || brand.hasPrefix("mif1") || brand.hasPrefix("heix") {
+                        return .heic(quality: nil)
+                    }
+                }
+            }
+        }
+
+        // WebP: 52 49 46 46 ... 57 45 42 50
+        if bytes[0] == 0x52 && bytes[1] == 0x49 && bytes[2] == 0x46 && bytes[3] == 0x46 {
+            if data.count >= 12 {
+                let webpBytes = [UInt8](data[8..<12])
+                if webpBytes[0] == 0x57 && webpBytes[1] == 0x45 && webpBytes[2] == 0x42 && webpBytes[3] == 0x50 {
+                    return .webp
+                }
+            }
+        }
+
+        return .unknown
+    }
+    
+    
+    
+    
+    // MARK: - 尺寸
+    public func imageSize(from data: Data) throws -> CGSize {
+        guard let source = CGImageSourceCreateWithData(data as CFData, nil) else {
+            throw MediaKitError.decodingFailed(underlying: nil)
+        }
+        
+        guard let properties = CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as? [CFString: Any],
+              let width = properties[kCGImagePropertyWidth] as? Int,
+              let height = properties[kCGImagePropertyHeight] as? Int
+        else {
+            throw MediaKitError.decodingFailed(underlying: nil)
+        }
+        
+        /// 考虑方向
+        let orientation = properties[kCGImagePropertyOrientation] as? Int ?? 1
+        let shouldSwap = orientation >= 5 && orientation <= 8
+        
+        return shouldSwap ? CGSize(width: height, height: width) : CGSize(width: width, height: height)
+    }
 }

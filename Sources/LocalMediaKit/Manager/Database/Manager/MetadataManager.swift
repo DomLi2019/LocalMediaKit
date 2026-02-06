@@ -60,6 +60,7 @@ public final class MetadataManager: Sendable {
                 t.column(MC.fileSize.rawValue, .integer).notNull()
                 t.column(MC.imagePath.rawValue, .text)
                 t.column(MC.videoPath.rawValue, .text)
+                t.column(MC.thumbnailPath.rawValue, .text)
                 t.column(MC.pixelWidth.rawValue, .integer)
                 t.column(MC.pixelHeight.rawValue, .integer)
                 t.column(MC.assetIdentifier.rawValue, .text)

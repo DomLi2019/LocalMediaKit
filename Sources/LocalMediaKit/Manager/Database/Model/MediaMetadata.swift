@@ -27,11 +27,14 @@ public struct MediaMetadata: Codable, Sendable, Identifiable {
     
     
     // MARK: - 文件路径
-    
     /// 图片的相对路径
     public let imagePath: String?
+    
     /// 视频的相对路径
-    public var videoPath: String?
+    public let videoPath: String?
+    
+    /// 缩略图的相对路径
+    public let thumbnailPath: String?
     
     
     
@@ -76,6 +79,7 @@ public struct MediaMetadata: Codable, Sendable, Identifiable {
         fileSize: Int64,
         imagePath: String? = nil,
         videoPath: String? = nil,
+        thumbnailPath: String? = nil,
         pixelWidth: Int? = nil,
         pixelHeight: Int? = nil,
         duration: TimeInterval? = nil,
@@ -89,6 +93,7 @@ public struct MediaMetadata: Codable, Sendable, Identifiable {
         self.fileSize = fileSize
         self.imagePath = imagePath
         self.videoPath = videoPath
+        self.thumbnailPath = thumbnailPath
         self.pixelWidth = pixelWidth
         self.pixelHeight = pixelHeight
         self.duration = duration
@@ -106,6 +111,7 @@ public struct MediaMetadata: Codable, Sendable, Identifiable {
         case fileSize
         case imagePath
         case videoPath
+        case thumbnailPath
         case pixelWidth
         case pixelHeight
         case duration

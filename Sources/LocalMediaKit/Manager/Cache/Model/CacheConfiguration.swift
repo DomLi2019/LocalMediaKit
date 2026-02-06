@@ -8,7 +8,7 @@
 import Foundation
 
 // MARK: - 缓存配置
-struct CacheConfiguration: Sendable {
+public struct CacheConfiguration: Sendable {
     // MARK: - 内存缓存配置
     /// 内存缓存最大条数
     public var memoryCountLimit: Int

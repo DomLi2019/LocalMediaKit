@@ -85,4 +85,81 @@ public final class VideoProcessor: Sendable {
             return ext
         }
     }
+    
+    
+    /// 视频信息提取
+    /// - Parameter url: <#url description#>
+    /// - Returns: <#description#>
+    public func videoInfo(of url: URL) async throws -> VideoInfo {
+        let asset = AVURLAsset(url: url)
+        
+        let duration = try await asset.load(.duration)
+        let tracks = try await asset.loadTracks(withMediaType: .video)      /// 加载视频的所有视频轨道
+        
+        /// 校验是否存在有效视频轨道
+        guard let track = tracks.first else {
+            throw MediaKitError.invalidVideo(reason: "No video track found")
+        }
+        
+        /// 加载视频轨道AVAssetTrack核心属性
+        let size = try await track.load(.naturalSize)       /// 视频轨道的原生宽高
+        let transform = try await track.load(.preferredTransform)           /// 视频轨道的首选变换矩阵
+        let nominalFrameRate = try await track.load(.nominalFrameRate)      /// 视频的帧率
+        let estimatedDataRate = try await track.load(.estimatedDataRate)    /// 视频的预估码率
+        
+        let formatDescriptions = try await track.load(.formatDescriptions)
+        var codec: String?
+        if let formatDescription = formatDescriptions.first {
+            let codecType = CMFormatDescriptionGetMediaSubType(formatDescription)
+            codec = codecName(for: codecType)
+        }
+        
+        /// 修正视频旋转后的实际宽高
+        let transformedSize = size.applying(transform)
+        let correctedSize = CGSize(width: abs(transformedSize.width), height: abs(transformedSize.height))
+        
+        return VideoInfo(
+            dimensions: correctedSize,
+            duration: duration.seconds,
+            codec: codec,
+            frameRate: nominalFrameRate,
+            bitRate: Int(estimatedDataRate)
+        )
+    }
+    
+    
+    private func codecName(for fourCC: FourCharCode) -> String {
+        switch fourCC {
+        case kCMVideoCodecType_H264:
+            return "H.264"
+        case kCMVideoCodecType_HEVC:
+            return "HEVC"
+        case kCMVideoCodecType_MPEG4Video:
+            return "MPEG-4"
+        case kCMVideoCodecType_AppleProRes422:
+            return "ProRes 422"
+        case kCMVideoCodecType_AppleProRes4444:
+            return "ProRes 4444"
+        default:
+            // 将 FourCC 转为字符串
+            let bytes: [UInt8] = [
+                UInt8(truncatingIfNeeded: (fourCC >> 24) & 0xFF),
+                UInt8(truncatingIfNeeded: (fourCC >> 16) & 0xFF),
+                UInt8(truncatingIfNeeded: (fourCC >> 8) & 0xFF),
+                UInt8(truncatingIfNeeded: fourCC & 0xFF)
+            ]
+            return String(decoding: bytes, as: UTF8.self)
+        }
+    }
+    
+    
+    public func isValid(at url: URL) async -> Bool {
+        let asset = AVURLAsset(url: url)
+        do {
+            let isPlayable = try await asset.load(.isPlayable)
+            return isPlayable
+        } catch {
+            return false 
+        }
+    }
 }

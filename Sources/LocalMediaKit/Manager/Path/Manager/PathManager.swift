@@ -45,20 +45,20 @@ public final class PathManager: Sendable {
     ///   - type: 媒体类型
     ///   - ext: 媒体拓展名
     /// - Returns: 路径url
-    public func generatePath(for id: MediaID, type: MediaType, ext: String) -> MediaURLs {
+    public func generatePath(for id: MediaID, type: MediaType, ext: String = "heic") -> MediaURL {
         switch type {
         case .image:
             let url = imagePath(for: id, ext: ext)
-            return MediaURLs(imageURL: url)
+            return .image(url)
         case .livePhoto:
             let urls = livePhotoPath(for: id)
-            return MediaURLs(imageURL: urls.image, videoURL: urls.video)
+            return .livePhoto(imageURL: urls.image, videoURL: urls.video)
         case .video:
-            let urls = videoPath(for: id)
-            return MediaURLs(imageURL: urls.image, videoURL: urls.video)
+            let urls = videoPath(for: id, ext: ext)
+            return .video(avatarURL: urls.image, videoURL: urls.video)
         case .animatedImage:
             let url = gifPath(for: id)
-            return MediaURLs(imageURL: url)
+            return .image(url)
         }
     }
     
@@ -113,7 +113,7 @@ public final class PathManager: Sendable {
     public func videoPath(for id: MediaID, ext: String = "mp4") -> (image: URL, video: URL) {
         return (
             buildMediaPath(subDirectory: configuration.videoDirectory, key: CacheKey.video(id: id), ext: ext),
-            buildMediaPath(subDirectory: configuration.videoDirectory, key: CacheKey.videoThumbnail(id: id), ext: ext)
+            buildMediaPath(subDirectory: configuration.videoDirectory, key: CacheKey.videoThumbnail(id: id), ext: "jpg")
         )
     }
     
