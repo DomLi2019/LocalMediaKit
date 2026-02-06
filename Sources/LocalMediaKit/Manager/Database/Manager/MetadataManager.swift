@@ -8,7 +8,7 @@
 import Foundation
 import GRDB
 
-public final class MetadataManager: Sendable {
+public final class MetadataManager: MetadataManaging, Sendable {
     /// 数据库队列
     private let dbQueue: DatabaseQueue
     
@@ -63,6 +63,8 @@ public final class MetadataManager: Sendable {
                 t.column(MC.thumbnailPath.rawValue, .text)
                 t.column(MC.pixelWidth.rawValue, .integer)
                 t.column(MC.pixelHeight.rawValue, .integer)
+                t.column(MC.duration.rawValue, .double)
+                t.column(MC.videoCodec.rawValue, .text)
                 t.column(MC.assetIdentifier.rawValue, .text)
                 t.column(MC.userInfo.rawValue, .text)
             }

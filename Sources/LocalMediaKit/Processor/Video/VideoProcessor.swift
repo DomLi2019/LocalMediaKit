@@ -9,7 +9,7 @@ import UIKit
 import AVFoundation
 
 /// 视频处理器
-public final class VideoProcessor: Sendable {
+public final class VideoProcessor: VideoProcessing, Sendable {
     /// 处理队列
     private let processingQueue = DispatchQueue(
         label: "com.localmediakit.videoprocessor",

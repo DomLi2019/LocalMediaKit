@@ -10,7 +10,7 @@ import Foundation
 
 
 /// 文件系统操作封装
-public final class StorageManager: Sendable {
+public final class StorageManager: StorageManaging, Sendable {
     /// 安全余量，默认50MB
     private let safetyMargin: Int64 = 50 * 1024 * 1024
     

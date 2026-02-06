@@ -7,7 +7,7 @@
 
 import Foundation
 
-public final class PathManager: Sendable {
+public final class PathManager: PathManaging, Sendable {
     /// 路径配置
     private let configuration: PathConfiguration
     

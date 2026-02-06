@@ -10,35 +10,35 @@ import UIKit
 /// 保存协调器
 public final class SaveCoordinator: Sendable {
     // MARK: - 依赖
-    private let pathManager: PathManager
-    private let storageManager: StorageManager
-    private let metadataManager: MetadataManager
-    private let imageProcessor: ImageProcessor
-    private let videoProcessor: VideoProcessor
-    private let livePhotoProcessor: LivePhotoProcessor
-    
+    private let pathManager: any PathManaging
+    private let storageManager: any StorageManaging
+    private let metadataManager: any MetadataManaging
+    private let imageProcessor: any ImageProcessing
+    private let videoProcessor: any VideoProcessing
+    private let livePhotoProcessor: any LivePhotoProcessing
+
     /// 配置
     private let configuration: LocalMediaKitConfiguration
-    
+
     /// 缩略图缓存
     private let thumbnailCache: CacheManager<UIImage>?
-    
+
     private let queue = DispatchQueue(
         label: "com.localmediakit.savecoordinator",
         qos: .userInitiated
     )
-    
-    
-    
-    
+
+
+
+
     // MARK: - 初始化
     init(
-        pathManager: PathManager,
-        storageManager: StorageManager = StorageManager(),
-        metadataManager: MetadataManager,
-        imageProcessor: ImageProcessor = ImageProcessor(),
-        videoProcessor: VideoProcessor = VideoProcessor(),
-        livePhotoProcessor: LivePhotoProcessor = LivePhotoProcessor(),
+        pathManager: any PathManaging,
+        storageManager: any StorageManaging = StorageManager(),
+        metadataManager: any MetadataManaging,
+        imageProcessor: any ImageProcessing = ImageProcessor(),
+        videoProcessor: any VideoProcessing = VideoProcessor(),
+        livePhotoProcessor: any LivePhotoProcessing = LivePhotoProcessor(),
         configuration: LocalMediaKitConfiguration,
         thumbnailCache: CacheManager<UIImage>? = nil
     ) {

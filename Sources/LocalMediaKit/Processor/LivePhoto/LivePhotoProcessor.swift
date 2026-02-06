@@ -9,7 +9,7 @@ import Foundation
 import Photos
 
 
-public final class LivePhotoProcessor: Sendable {
+public final class LivePhotoProcessor: LivePhotoProcessing, Sendable {
     private let imageProcessor: ImageProcessor
     private let videoProcessor: VideoProcessor
     private let storageManager: StorageManager

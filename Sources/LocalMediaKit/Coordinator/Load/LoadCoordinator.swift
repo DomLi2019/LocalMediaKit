@@ -10,27 +10,27 @@ import UIKit
 
 /// 加载协调器
 public final class LoadCoordinator: Sendable {
-    private let pathManager: PathManager
-    private let storageManager: StorageManager
-    private let metadataManager: MetadataManager
-    private let imageProcessor: ImageProcessor
-    private let videoProcessor: VideoProcessor
-    private let livePhotoProcessor: LivePhotoProcessor
-    
-    
+    private let pathManager: any PathManaging
+    private let storageManager: any StorageManaging
+    private let metadataManager: any MetadataManaging
+    private let imageProcessor: any ImageProcessing
+    private let videoProcessor: any VideoProcessing
+    private let livePhotoProcessor: any LivePhotoProcessing
+
+
     /// 缓存
     private let imageCache: CacheManager<UIImage>?
     private let thumbnailCache: CacheManager<UIImage>?
     private let dataCache: CacheManager<Data>?
-    
-    
+
+
     init(
-        pathManager: PathManager,
-        storageManager: StorageManager = StorageManager(),
-        metadataManager: MetadataManager,
-        imageProcessor: ImageProcessor = ImageProcessor(),
-        videoProcessor: VideoProcessor = VideoProcessor(),
-        livePhotoProcessor: LivePhotoProcessor = LivePhotoProcessor(),
+        pathManager: any PathManaging,
+        storageManager: any StorageManaging = StorageManager(),
+        metadataManager: any MetadataManaging,
+        imageProcessor: any ImageProcessing = ImageProcessor(),
+        videoProcessor: any VideoProcessing = VideoProcessor(),
+        livePhotoProcessor: any LivePhotoProcessing = LivePhotoProcessor(),
         imageCache: CacheManager<UIImage>? = nil,
         thumbnailCache: CacheManager<UIImage>? = nil,
         dataCache: CacheManager<Data>? = nil
