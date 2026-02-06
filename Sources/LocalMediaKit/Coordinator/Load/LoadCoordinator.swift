@@ -26,14 +26,14 @@ public final class LoadCoordinator: Sendable {
 
     init(
         pathManager: any PathManaging,
-        storageManager: any StorageManaging = StorageManager(),
+        storageManager: any StorageManaging,
         metadataManager: any MetadataManaging,
-        imageProcessor: any ImageProcessing = ImageProcessor(),
-        videoProcessor: any VideoProcessing = VideoProcessor(),
-        livePhotoProcessor: any LivePhotoProcessing = LivePhotoProcessor(),
-        imageCache: CacheManager<UIImage>? = nil,
-        thumbnailCache: CacheManager<UIImage>? = nil,
-        dataCache: CacheManager<Data>? = nil
+        imageProcessor: any ImageProcessing,
+        videoProcessor: any VideoProcessing,
+        livePhotoProcessor: any LivePhotoProcessing,
+        imageCache: CacheManager<UIImage>?,
+        thumbnailCache: CacheManager<UIImage>?,
+        dataCache: CacheManager<Data>?
     ) {
         self.pathManager = pathManager
         self.storageManager = storageManager

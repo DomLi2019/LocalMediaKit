@@ -14,17 +14,27 @@ struct SaveRequestTests {
         #expect(request.thumbnailSize == CGSize(width: 200, height: 200))
     }
 
-    @Test("image(Data) factory")
+    @Test("image(Data) factory without thumbnailSize: no thumbnail")
     func imageDataFactory() {
         let data = Data([0x01, 0x02])
         let request = SaveRequest.image(data, userInfo: ["k": "v"])
         #expect(request.type == .image)
+        #expect(request.generateThumbnail == false)
         #expect(request.userInfo?["k"] == "v")
         if case .imageData(let d) = request.data {
             #expect(d == data)
         } else {
             Issue.record("Expected .imageData")
         }
+    }
+
+    @Test("image(Data) factory with thumbnailSize: generates thumbnail")
+    func imageDataFactoryWithThumbnail() {
+        let data = Data([0x01, 0x02])
+        let size = CGSize(width: 150, height: 150)
+        let request = SaveRequest.image(data, thumbnailSize: size)
+        #expect(request.generateThumbnail == true)
+        #expect(request.thumbnailSize == size)
     }
 
     @Test("image(UIImage) factory")

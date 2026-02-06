@@ -23,7 +23,7 @@ public struct LoadRequest: Sendable {
     public init(
         id: MediaID,
         targetSize: CGSize? = nil,
-        cachePolicy: CachePolicy
+        cachePolicy: CachePolicy = .default
     ) {
         self.id = id
         self.targetSize = targetSize

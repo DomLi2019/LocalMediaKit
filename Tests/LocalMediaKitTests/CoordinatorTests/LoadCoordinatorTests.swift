@@ -36,6 +36,7 @@ struct LoadCoordinatorTests {
     func loadMediaNotFound() async {
         let id = MediaID(raw: "missing")
         let request = LoadRequest.original(id: id)
+        /// 预期：抛出MediaKitError错误
         await #expect(throws: MediaKitError.self) {
             _ = try await coordinator.load(request)
         }

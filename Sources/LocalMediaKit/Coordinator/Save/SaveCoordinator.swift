@@ -17,12 +17,6 @@ public final class SaveCoordinator: Sendable {
     private let videoProcessor: any VideoProcessing
     private let livePhotoProcessor: any LivePhotoProcessing
 
-    /// 配置
-    private let configuration: LocalMediaKitConfiguration
-
-    /// 缩略图缓存
-    private let thumbnailCache: CacheManager<UIImage>?
-
     private let queue = DispatchQueue(
         label: "com.localmediakit.savecoordinator",
         qos: .userInitiated
@@ -38,9 +32,7 @@ public final class SaveCoordinator: Sendable {
         metadataManager: any MetadataManaging,
         imageProcessor: any ImageProcessing = ImageProcessor(),
         videoProcessor: any VideoProcessing = VideoProcessor(),
-        livePhotoProcessor: any LivePhotoProcessing = LivePhotoProcessor(),
-        configuration: LocalMediaKitConfiguration,
-        thumbnailCache: CacheManager<UIImage>? = nil
+        livePhotoProcessor: any LivePhotoProcessing = LivePhotoProcessor()
     ) {
         self.pathManager = pathManager
         self.storageManager = storageManager
@@ -48,8 +40,6 @@ public final class SaveCoordinator: Sendable {
         self.imageProcessor = imageProcessor
         self.videoProcessor = videoProcessor
         self.livePhotoProcessor = livePhotoProcessor
-        self.configuration = configuration
-        self.thumbnailCache = thumbnailCache
     }
     
     

@@ -53,8 +53,11 @@ extension SaveRequest {
     ///   - data: 图片数据
     ///   - userInfo: 用户自定义信息
     /// - Returns: 保存请求
-    public static func image(_ data: Data, userInfo: [String: String]? = nil) -> SaveRequest {
-        return SaveRequest(type: .image, data: .imageData(data), userInfo: userInfo)
+    public static func image(_ data: Data, thumbnailSize: CGSize? = nil, userInfo: [String: String]? = nil) -> SaveRequest {
+        if let thumbnailSize {
+            return SaveRequest(type: .image, data: .imageData(data), userInfo: userInfo, generateThumbnail: true, thumbnailSize: thumbnailSize)
+        }
+        return SaveRequest(type: .image, data: .imageData(data), userInfo: userInfo, generateThumbnail: false)
     }
     
     

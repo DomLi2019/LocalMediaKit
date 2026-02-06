@@ -23,6 +23,9 @@ public struct LocalMediaKitConfiguration: Sendable {
     /// 默认缩略图尺寸
     public var defaultThumbnailSize: CGSize
     
+    /// 数据库路径
+    public var databasePath: URL
+    
     /// 是否启用调试日志
     public var enableDebugLog: Bool
     
@@ -32,17 +35,21 @@ public struct LocalMediaKitConfiguration: Sendable {
         cache: CacheConfiguration = .default,
         autoGenerateThumbnail: Bool = true,
         defaultThumbnailSize: CGSize = CGSize(width: 200, height: 200),
+        databasePath: URL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+            .appendingPath("LocalMediaKit")
+            .appendingPath("metadata.sqlite"),
         enableDebugLog: Bool = false
     ) {
         self.path = path
         self.cache = cache
         self.autoGenerateThumbnail = autoGenerateThumbnail
         self.defaultThumbnailSize = defaultThumbnailSize
+        self.databasePath = databasePath
         self.enableDebugLog = enableDebugLog
     }
     
     
-    public var `default`: LocalMediaKitConfiguration {
+    public static var `default`: LocalMediaKitConfiguration {
         return LocalMediaKitConfiguration()
     }
 }

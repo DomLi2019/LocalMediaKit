@@ -12,7 +12,7 @@ public final class PathManager: PathManaging, Sendable {
     private let configuration: PathConfiguration
     
     /// 根目录
-    private let rootDirectory: URL
+    public let rootDirectory: URL
     
     
     public init(configuration: PathConfiguration = .default) throws {
@@ -22,9 +22,8 @@ public final class PathManager: PathManaging, Sendable {
         /// 如果用户自定义了根目录
         if let customRootDirectory = configuration.rootDirectory {
             self.rootDirectory = customRootDirectory
-        }
+        } else {
         /// 如果没有定义根目录，使用默认根目录/Documents/LocalMediaKit
-        else {
             guard let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else {
                 throw MediaKitError.invalidRootDirectory(URL(fileURLWithPath: "/"))
             }
