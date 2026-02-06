@@ -19,9 +19,9 @@ public enum MediaURL: Sendable {
         switch self {
         case .image(let url):
             return url
-        case .livePhoto(let imageURL, let videoURL):
+        case .livePhoto(let imageURL, _):
             return imageURL
-        case .video(let avatarURL, let videoURL):
+        case .video(let avatarURL, _):
             return avatarURL
         }
     }
@@ -30,11 +30,11 @@ public enum MediaURL: Sendable {
     /// 视频
     public var primaryVideoURL: URL? {
         switch self {
-        case .image(let url):
+        case .image(_):
             return nil
-        case .livePhoto(let imageURL, let videoURL):
+        case .livePhoto(_, let videoURL):
             return videoURL
-        case .video(let avatarURL, let videoURL):
+        case .video(_, let videoURL):
             return videoURL
         }
     }
