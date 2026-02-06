@@ -38,4 +38,17 @@ public enum MediaURL: Sendable {
             return videoURL
         }
     }
+    
+    
+    /// 主要URL
+    public var primaryURL: URL {
+        switch self {
+        case .image(let url):
+            return url
+        case .livePhoto(let imageURL, _):
+            return imageURL
+        case .video(_, let videoURL):
+            return videoURL
+        }
+    }
 }

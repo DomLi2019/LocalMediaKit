@@ -53,11 +53,27 @@ extension SaveRequest {
     ///   - data: 图片数据
     ///   - userInfo: 用户自定义信息
     /// - Returns: 保存请求
-    public static func image(_ data: Data, thumbnailSize: CGSize? = nil, userInfo: [String: String]? = nil) -> SaveRequest {
+    public static func image(
+        _ data: Data,
+        thumbnailSize: CGSize? = nil,
+        userInfo: [String: String]? = nil
+    ) -> SaveRequest {
         if let thumbnailSize {
-            return SaveRequest(type: .image, data: .imageData(data), userInfo: userInfo, generateThumbnail: true, thumbnailSize: thumbnailSize)
+            return SaveRequest(
+                type: .image,
+                data: .imageData(data),
+                userInfo: userInfo,
+                generateThumbnail: true,
+                thumbnailSize: thumbnailSize
+            )
+        } else {
+            return SaveRequest(
+                type: .image,
+                data: .imageData(data),
+                userInfo: userInfo,
+                generateThumbnail: false
+            )
         }
-        return SaveRequest(type: .image, data: .imageData(data), userInfo: userInfo, generateThumbnail: false)
     }
     
     
@@ -65,9 +81,25 @@ extension SaveRequest {
     public static func image(
         _ image: UIImage,
         format: ImageFormat = .default,
+        thumbnailSize: CGSize? = nil,
         userInfo: [String: String]? = nil
     ) -> SaveRequest {
-        return SaveRequest(type: .image, data: .image(image, format: format), userInfo: userInfo)
+        if let thumbnailSize {
+            return SaveRequest(
+                type: .image,
+                data: .image(image, format: format),
+                userInfo: userInfo,
+                generateThumbnail: true,
+                thumbnailSize: thumbnailSize
+            )
+        } else {
+            return SaveRequest(
+                type: .image, 
+                data: .image(image, format: format), 
+                userInfo: userInfo,
+                generateThumbnail: false
+            )
+        }
     }
     
     
@@ -75,17 +107,49 @@ extension SaveRequest {
     public static func livePhoto(
         imageData: Data,
         videoURL: URL,
+        thumbnailSize: CGSize? = nil,
         userInfo: [String: String]? = nil
     ) -> SaveRequest {
-        return SaveRequest(type: .livePhoto, data: .livePhoto(imageData: imageData, videoURL: videoURL), userInfo: userInfo)
+        if let thumbnailSize {
+            return SaveRequest(
+                type: .livePhoto,
+                data: .livePhoto(imageData: imageData, videoURL: videoURL),
+                userInfo: userInfo,
+                generateThumbnail: true,
+                thumbnailSize: thumbnailSize
+            )
+        } else {
+            return SaveRequest(
+                type: .livePhoto,
+                data: .livePhoto(imageData: imageData, videoURL: videoURL),
+                userInfo: userInfo,
+                generateThumbnail: false
+            )
+        }
     }
     
     
     /// 创建视频保存请求
     public static func video(
         at url: URL,
+        thumbnailSize: CGSize? = nil,
         userInfo: [String: String]? = nil
     ) -> SaveRequest {
-        return SaveRequest(type: .video, data: .videoURL(url), userInfo: userInfo)
+        if let thumbnailSize {
+            return SaveRequest(
+                type: .video,
+                data: .videoURL(url),
+                userInfo: userInfo,
+                generateThumbnail: true,
+                thumbnailSize: thumbnailSize
+            )
+        } else {
+            return SaveRequest(
+                type: .video,
+                data: .videoURL(url),
+                userInfo: userInfo,
+                generateThumbnail: false
+            )
+        }
     }
 }

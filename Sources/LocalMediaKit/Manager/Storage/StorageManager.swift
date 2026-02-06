@@ -257,6 +257,18 @@ public final class StorageManager: StorageManaging, Sendable {
         /// 返回临时文件路径（带拓展名）
         return tempDirectory.appendingPath(fileName)
     }
+    
+    
+    /// 提取拓展名
+    public func extractExtension(url: URL) -> String {
+        /// 获取目标文件的拓展名
+        let ext = url.pathExtension
+        
+        /// 如果拓展名含.前缀，去掉
+        let cleanExt = ext.hasPrefix(".") ? String(ext.dropFirst()) : ext
+        
+        return cleanExt
+    }
 }
 
 

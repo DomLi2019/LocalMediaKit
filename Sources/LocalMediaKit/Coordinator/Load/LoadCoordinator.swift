@@ -261,4 +261,43 @@ public final class LoadCoordinator: Sendable {
         
         return .animatedImage(data: data, preview: preview)
     }
+    
+    
+    
+    
+    // MARK: - 获取文件URL
+    /// 获取文件 URL（不加载到内存）
+    /// - Parameter id: 媒体 ID
+    /// - Returns: 文件 URL
+    public func fileURL(for id: MediaID) async throws -> URL {
+        guard let metadata = try await metadataManager.get(id: id) else {
+            throw MediaKitError.mediaNotFound(id)
+        }
+        
+        let url = pathManager.fullPath(for: metadata.primaryPath)
+        
+        guard storageManager.exists(at: url) else {
+            throw MediaKitError.fileCorrupted(path: url.compatPath)
+        }
+        
+        return url
+    }
+    
+    
+    
+    
+    // MARK: - 预加载
+    /// 预加载缩略图
+    /// - Parameters:
+    ///   - ids: 媒体 ID 数组
+    ///   - size: 缩略图尺寸
+    public func preloadThumbnail(ids: [MediaID], size: CGSize) async {
+        for id in ids {
+            do {
+                _ = try await loadThumbnail(id: id, size: size)
+            } catch {
+                debugPrint("preloadThumbnail 失败, 媒体 ID： \(id)")
+            }
+        }
+    }
 }

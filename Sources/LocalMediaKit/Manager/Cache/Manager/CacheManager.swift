@@ -18,7 +18,7 @@ public final class CacheManager<T: Sendable>: Sendable {
     // MARK: - 初始化
     init(
         configuration: CacheConfiguration,
-        cacheDirectory: URL?
+        cacheDirectory: URL?    // 磁盘缓存的路径，暂时没用
     ) {
         self.configuration = configuration
         
