@@ -276,6 +276,7 @@ public final class SaveCoordinator: Sendable {
         } catch  {
             try? await storageManager.delete(at: videoTargetURL)
             try? await storageManager.delete(at: thumbnailTargetURL)
+            throw error
         }
         
         return id
