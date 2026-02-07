@@ -24,5 +24,7 @@ Pod::Spec.new do |s|
   s.source_files = 'Sources/LocalMediaKit/**/*.swift'
   
   s.frameworks = 'Foundation', 'UIKit', 'Photos', 'PhotosUI', 'AVFoundation', 'ImageIO', 'CoreServices'
+  
+  s.dependency 'GRDB.swift', '>= 6.24'
 end
 
