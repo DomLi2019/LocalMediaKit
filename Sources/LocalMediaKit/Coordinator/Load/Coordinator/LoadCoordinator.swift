@@ -6,7 +6,7 @@
 //
 
 import UIKit
-
+import Photos
 
 /// 加载协调器
 public final class LoadCoordinator: Sendable {
@@ -260,6 +260,86 @@ public final class LoadCoordinator: Sendable {
         }
         
         return .animatedImage(data: data, preview: preview)
+    }
+    
+    
+    
+    
+    // MARK: - URL加载
+    
+    /// 用URL加载图片
+    /// - Parameters:
+    ///   - url: 图片路径URL
+    ///   - cacheKey: 缓存Key，建议传文件名或其他已有id
+    /// - Returns: 图片
+    public func loadImage(at url: URL, cacheKey: String? = nil) async throws -> UIImage {
+        let key = cacheKey ?? url.lastPathComponent
+        
+        /// 查缓存
+        if let cache = imageCache, let cached = await cache.get(key) {
+            return cached
+        }
+        
+        /// 读取文件并解码成图片
+        let data = try await storageManager.read(from: url)
+        let image = try await imageProcessor.decode(data)
+        
+        /// 写入缓存
+        if let cache = imageCache {
+            await cache.set(key, value: image)
+        }
+        return image
+    }
+    
+    
+    /// 用URL加载实况图
+    /// - Parameters:
+    ///   - imageURL: 图片路径
+    ///   - videoURL: 视频路径
+    /// - Returns: 实况图对象
+    public func loadLivePhoto(imageURL: URL, videoURL: URL) async throws -> PHLivePhoto {
+        let livePhoto = try await livePhotoProcessor.assemble(imageURL: imageURL, videoURL: videoURL)
+        return livePhoto
+    }
+    
+    
+    /// 用URL加载缩略图
+    public func loadThumbnail(at url: URL, size: CGSize, cacheKey: String? = nil) async throws -> UIImage {
+        let key = cacheKey ?? "\(url.lastPathComponent)_\(Int(size.width))x\(Int(size.height))"
+        
+        /// 查缓存
+        if let cache = thumbnailCache, let cached = await cache.get(key) {
+            return cached
+        }
+        
+        /// 获取缩略图
+        let thumbnail = try await imageProcessor.thumbnail(at: .url(url), targetSize: size)
+        
+        /// 写入缓存
+        if let cache = thumbnailCache {
+            await cache.set(key, value: thumbnail)
+        }
+        return thumbnail
+    }
+    
+    
+    /// 用URL加载视频缩略图
+    public func loadVideoThumbnail(at url: URL, size: CGSize, cacheKey: String? = nil) async throws -> UIImage {
+        let key = cacheKey ?? "\(url.lastPathComponent)_\(Int(size.width))x\(Int(size.height))"
+        
+        /// 查缓存
+        if let cache = thumbnailCache, let cached = await cache.get(key) {
+            return cached
+        }
+        
+        /// 获取缩略图
+        let thumbnail = try await videoProcessor.extractThumbnail(from: url)
+        
+        /// 写入缓存
+        if let cache = thumbnailCache {
+            await cache.set(key, value: thumbnail)
+        }
+        return thumbnail
     }
     
     

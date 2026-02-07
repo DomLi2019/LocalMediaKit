@@ -110,16 +110,43 @@ public final class LocalMediaKit: Sendable {
         return try await loadCoordinator.load(request)
     }
     
+    
     /// 用 LoadRequest 加载媒体
     public func load(_ request: LoadRequest) async throws -> MediaResource {
         return try await loadCoordinator.load(request)
     }
+    
     
     /// 加载缩略图
     public func loadThumbnail(id: MediaID, size: CGSize) async throws -> UIImage {
         return try await loadCoordinator.loadThumbnail(id: id, size: size)
     }
     
+    
+    
+    
+    // MARK: - URL 加载
+    /// URL 加载图片
+    public func loadImage(at url: URL, cacheKey: String? = nil) async throws -> UIImage {
+        return try await loadCoordinator.loadImage(at: url, cacheKey: cacheKey)
+    }
+    
+    /// URL 加载实况图
+    public func loadLivePhoto(imageURL: URL, videoURL: URL) async throws -> PHLivePhoto {
+        return try await loadCoordinator.loadLivePhoto(imageURL: imageURL, videoURL: videoURL)
+    }
+    
+    
+    /// URL 加载缩略图
+    public func loadThumbnail(at url: URL, size: CGSize, cacheKey: String? = nil) async throws -> UIImage {
+        return try await loadCoordinator.loadThumbnail(at: url, size: size, cacheKey: cacheKey)
+    }
+    
+    
+    /// URL 加载视频缩略图
+    public func loadVideoThumbnail(at url: URL, size: CGSize, cacheKey: String? = nil) async throws -> UIImage {
+        return try await loadCoordinator.loadVideoThumbnail(at: url, size: size, cacheKey: cacheKey)
+    }
     
     
     
