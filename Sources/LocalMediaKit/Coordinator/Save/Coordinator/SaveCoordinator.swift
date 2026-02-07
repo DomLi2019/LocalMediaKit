@@ -174,7 +174,7 @@ public final class SaveCoordinator: Sendable {
         let imageURL = pathManager.generatePath(for: id, type: .image, ext: ext).primaryImageURL
         
         /// 确保路径存在
-        try storageManager.ensureDirectoryExists(at: imageURL)
+        try storageManager.ensureParentDirectoryExists(at: imageURL)
         
         /// 写入文件
         try await writeAssetResource(imageResource, to: imageURL)
