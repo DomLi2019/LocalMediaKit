@@ -115,6 +115,8 @@ extension MediaKitError: LocalizedError {
             
         case .mediaNotFound(let id):
             return "Media not found: \(id)"
+        case .fileNotFound(let url):
+            return "File not found: \(url)"
         case .fileCorrupted(let path):
             return "File corrupted: \(path)"
         case .decodingFailed(let error):
