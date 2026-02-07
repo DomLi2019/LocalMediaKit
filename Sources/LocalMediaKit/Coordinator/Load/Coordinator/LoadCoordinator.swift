@@ -280,6 +280,11 @@ public final class LoadCoordinator: Sendable {
             return cached
         }
         
+        /// 检查文件是否存在
+        guard storageManager.exists(at: url) else {
+            throw MediaKitError.fileNotFound(url)
+        }
+        
         /// 读取文件并解码成图片
         let data = try await storageManager.read(from: url)
         let image = try await imageProcessor.decode(data)
@@ -298,6 +303,10 @@ public final class LoadCoordinator: Sendable {
     ///   - videoURL: 视频路径
     /// - Returns: 实况图对象
     public func loadLivePhoto(imageURL: URL, videoURL: URL) async throws -> PHLivePhoto {
+        /// 检查文件是否存在
+        guard storageManager.exists(at: imageURL), storageManager.exists(at: videoURL) else {
+            throw MediaKitError.fileNotFound(imageURL)
+        }
         let livePhoto = try await livePhotoProcessor.assemble(imageURL: imageURL, videoURL: videoURL)
         return livePhoto
     }
@@ -309,7 +318,14 @@ public final class LoadCoordinator: Sendable {
         
         /// 查缓存
         if let cache = thumbnailCache, let cached = await cache.get(key) {
+            debugPrint("🟢 loadThumbnail 缩略图缓存命中: \(key)")
             return cached
+        }
+        
+        debugPrint("🔴 loadThumbnail 缩略图缓存未命中，从文件加载: \(key)")
+        /// 检查文件是否存在
+        guard storageManager.exists(at: url) else {
+            throw MediaKitError.fileNotFound(url)
         }
         
         /// 获取缩略图
@@ -332,6 +348,10 @@ public final class LoadCoordinator: Sendable {
             return cached
         }
         
+        /// 检查文件是否存在
+        guard storageManager.exists(at: url) else {
+            throw MediaKitError.fileNotFound(url)
+        }
         /// 获取缩略图
         let thumbnail = try await videoProcessor.extractThumbnail(from: url)
         

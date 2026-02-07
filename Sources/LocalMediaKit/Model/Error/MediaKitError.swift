@@ -44,6 +44,9 @@ public enum MediaKitError: Error, Sendable {
     /// 媒体未找到
     case mediaNotFound(MediaID)
     
+    /// 文件 URL 不存在
+    case fileNotFound(URL)
+    
     /// 文件损坏
     case fileCorrupted(path: String)
     
