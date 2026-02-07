@@ -13,4 +13,5 @@ public protocol ImageProcessing: Sendable {
     func thumbnail(at source: ImageSource, targetSize: CGSize) async throws -> UIImage
     func detectFormat(from data: Data) -> ImageFormat?
     func imageSize(from data: Data) throws -> CGSize
+    func imageSize(at url: URL) throws -> CGSize
 }

@@ -267,4 +267,25 @@ public final class ImageProcessor: ImageProcessing, Sendable {
         
         return shouldSwap ? CGSize(width: height, height: width) : CGSize(width: width, height: height)
     }
+    
+    
+    /// 从url解析图片尺寸
+    public func imageSize(at url: URL) throws -> CGSize {
+        guard let source = CGImageSourceCreateWithURL(url as CFURL, nil) else {
+            throw MediaKitError.decodingFailed(underlying: nil)
+        }
+        
+        guard let properties = CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as? [CFString: Any],
+              let width = properties[kCGImagePropertyWidth] as? Int,
+              let height = properties[kCGImagePropertyHeight] as? Int
+        else {
+            throw MediaKitError.decodingFailed(underlying: nil)
+        }
+        
+        /// 考虑方向
+        let orientation = properties[kCGImagePropertyOrientation] as? Int ?? 1
+        let shouldSwap = orientation >= 5 && orientation <= 8
+        
+        return shouldSwap ? CGSize(width: height, height: width) : CGSize(width: width, height: height)
+    }
 }

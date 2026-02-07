@@ -64,4 +64,12 @@ final class MockStorageManager: StorageManaging, @unchecked Sendable {
         }
         return fileSizeResult
     }
+    
+    func extractExtension(url: URL) -> String {
+        return "fatal"
+    }
+    
+    func ensureDirectoryExists(at url: URL) throws {
+        
+    }
 }

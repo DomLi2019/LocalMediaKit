@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Photos
 
 /// 保存协调器
 public final class SaveCoordinator: Sendable {
@@ -71,11 +72,7 @@ public final class SaveCoordinator: Sendable {
         /// 生成路径
         let imageURL = pathManager.generatePath(for: id, type: request.type, ext: ext).primaryImageURL
         /// 检查磁盘空间 + 写入文件
-        do {
-            try await storageManager.write(imageData, to: imageURL)
-        } catch {
-            throw error
-        }
+        try await storageManager.write(imageData, to: imageURL)
         
         /// 存储缩略图
         var thumbnailRelativePath: String? = nil
@@ -109,6 +106,131 @@ public final class SaveCoordinator: Sendable {
     }
     
     
+    /// URL 保存图片
+    public func saveImage(
+        at url: URL,
+        thumbnailSize: CGSize? = nil,
+        userInfo: [String: String]? = nil
+    ) async throws -> MediaID {
+        /// 生成ID
+        let id = MediaID()
+        
+        /// 获取拓展名
+        let ext = storageManager.extractExtension(url: url)
+        
+        /// 生成路径
+        let imageURL = pathManager.generatePath(for: id, type: .image, ext: ext).primaryImageURL
+        
+        /// 检查磁盘空间 + 拷贝文件
+        try await storageManager.copy(at: url, to: imageURL)
+        
+        /// 保存缩略图
+        var thumbnailRelativePath: String? = nil
+        if let thumbnailSize {
+            thumbnailRelativePath = await generateAndSaveThumbnail(
+                id: id,
+                source: .url(url),
+                size: thumbnailSize
+            )
+        }
+        
+        /// 构建图片元数据
+        let metadata = try await createMetadata(
+            id: id,
+            type: .image,
+            imageData: nil,
+            mediaURL: .image(imageURL),
+            thumbnailPath: thumbnailRelativePath,
+            userInfo: userInfo
+        )
+        
+        /// 写入数据库
+        do {
+            try await metadataManager.save(metadata)
+        } catch {
+            try? await storageManager.delete(at: imageURL)
+            throw error
+        }
+        
+        return id
+    }
+    
+    
+    /// PHAsset 保存图片
+    public func saveImage(from asset: PHAsset, thumbnailSize: CGSize? = nil, userInfo: [String: String]? = nil) async throws -> MediaID {
+        /// 生成ID
+        let id = MediaID()
+        
+        let resource = PHAssetResource.assetResources(for: asset)
+        let editedResource = resource.first(where: { $0.type == .fullSizePhoto }) ?? resource.first(where: { $0.type == .photo })
+        guard let imageResource = editedResource else {
+            throw MediaKitError.invalidMediaData(reason: "PHAssetResource doesn't exist.")
+        }
+        
+        /// 获取拓展名
+        let ext = (imageResource.originalFilename as NSString).pathExtension.lowercased()
+        
+        /// 生成路径
+        let imageURL = pathManager.generatePath(for: id, type: .image, ext: ext).primaryImageURL
+        
+        /// 确保路径存在
+        try storageManager.ensureDirectoryExists(at: imageURL)
+        
+        /// 写入文件
+        try await writeAssetResource(imageResource, to: imageURL)
+                
+        /// 保存缩略图
+        var thumbnailRelativePath: String? = nil
+        if let thumbnailSize {
+            thumbnailRelativePath = await generateAndSaveThumbnail(
+                id: id,
+                source: .url(imageURL),
+                size: thumbnailSize
+            )
+        }
+        
+        /// 构建图片元数据
+        let metadata = try await createMetadata(
+            id: id,
+            type: .image,
+            imageData: nil,
+            mediaURL: .image(imageURL),
+            thumbnailPath: thumbnailRelativePath,
+            userInfo: userInfo
+        )
+        
+        /// 写入数据库
+        do {
+            try await metadataManager.save(metadata)
+        } catch {
+            try? await storageManager.delete(at: imageURL)
+            throw error
+        }
+        
+        return id
+    }
+    
+    /// 桥接 PHAssetResourceManager 接口 writeData
+    private func writeAssetResource(_ resource: PHAssetResource, to url: URL) async throws {
+        let options = PHAssetResourceRequestOptions()
+        options.isNetworkAccessAllowed = true
+        
+        return try await withCheckedThrowingContinuation { continuation in
+            PHAssetResourceManager.default().writeData(
+                for: resource,
+                toFile: url,
+                options: options
+            ) { error in
+                if let error {
+                    continuation.resume(throwing: error)
+                } else {
+                    continuation.resume()
+                }
+            }
+        }
+    }
+    
+    
     /// 获取图片Data和拓展名
     private func prepareImageData(_ request: SaveRequest) async throws -> (Data, String) {
         switch request.data {
@@ -135,7 +257,7 @@ public final class SaveCoordinator: Sendable {
     ///   - source: 图片资源
     ///   - size: 缩略图目标尺寸
     /// - Returns: 缩略图的相对路径
-    private func generateAndSaveThumbnail(
+    public func generateAndSaveThumbnail(
         id: MediaID,
         source: ImageSource,
         size: CGSize
@@ -295,12 +417,15 @@ public final class SaveCoordinator: Sendable {
     ) async throws -> MediaMetadata {
         switch type {
         case .image, .animatedImage:
-            let size = try imageProcessor.imageSize(from: imageData!)
+            let imageURL = mediaURL.primaryImageURL
+            let size = imageData != nil ? try imageProcessor.imageSize(from: imageData!) : try imageProcessor.imageSize(at: imageURL)
+            let fileSize = imageData != nil ? Int64(imageData!.count) : try storageManager.fileSize(at: imageURL)
+            
             return MediaMetadata(
                 id: id,
                 type: type,
-                fileSize: Int64(imageData!.count),
-                imagePath: pathManager.relativePath(for: mediaURL.primaryImageURL),
+                fileSize: fileSize,
+                imagePath: pathManager.relativePath(for: imageURL),
                 thumbnailPath: thumbnailPath,
                 pixelWidth: Int(size.width),
                 pixelHeight: Int(size.height),

@@ -209,6 +209,18 @@ public final class LocalMediaKit: Sendable {
     }
     
     
+    /// 保存图片 URL
+    public func saveImage(at url: URL, thumbnailSize: CGSize? = nil, userInfo: [String: String]? = nil) async throws -> MediaID {
+        return try await saveCoordinator.saveImage(at: url, thumbnailSize: thumbnailSize, userInfo: userInfo)
+    }
+    
+    
+    /// 保存图片 PHAsset
+    public func saveImage(from asset: PHAsset, thumbnailSize: CGSize? = nil, userInfo: [String: String]? = nil) async throws -> MediaID {
+        return try await saveCoordinator.saveImage(from: asset, thumbnailSize: thumbnailSize, userInfo: userInfo)
+    }
+    
+    
     
     
     // MARK: - 保存实况图

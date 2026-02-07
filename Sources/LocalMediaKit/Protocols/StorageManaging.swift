@@ -14,4 +14,6 @@ public protocol StorageManaging: Sendable {
     func delete(at url: URL) async throws
     func exists(at url: URL) -> Bool
     func fileSize(at url: URL) throws -> Int64
+    func extractExtension(url: URL) -> String
+    func ensureDirectoryExists(at url: URL) throws
 }

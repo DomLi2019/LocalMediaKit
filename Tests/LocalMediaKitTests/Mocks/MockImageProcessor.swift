@@ -51,4 +51,10 @@ final class MockImageProcessor: ImageProcessing, @unchecked Sendable {
         if let error = imageSizeError { throw error }
         return imageSizeResult
     }
+    
+    func imageSize(at url: URL) throws -> CGSize {
+        imageSizeCallCount += 1
+        if let error = imageSizeError { throw error }
+        return imageSizeResult
+    }
 }
