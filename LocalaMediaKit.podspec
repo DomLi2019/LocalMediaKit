@@ -13,10 +13,10 @@ Pod::Spec.new do |s|
     - Thread-safe operations with optimized performance
   DESC
 
-  s.homepage         = 'https://github.com/example/LocalMediaKit'
+  s.homepage         = 'https://github.com/DomLi2019/LocalMediaKit'
   s.license          = { :type => 'MIT', :file => 'LICENSE' }
-  s.author           = { 'Author' => 'author@example.com' }
-  s.source           = { :git => 'https://github.com/example/LocalMediaKit.git', :tag => s.version.to_s }
+  s.author           = { 'Author' => 'productcoding@163.com' }
+  s.source           = { :git => 'https://github.com/DomLi2019/LocalMediaKit.git', :tag => '1.0.0' }
 
   s.ios.deployment_target = '15.0'
   s.swift_version = '5.9'

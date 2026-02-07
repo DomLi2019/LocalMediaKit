@@ -90,9 +90,21 @@ public final class LocalMediaKit: Sendable {
             dataCache: dataCache
         )
         
+        
+        #if DEBUG
         if configuration.enableDebugLog {
-            debugPrint("LocalMediaKit Configured with root: \(pathManager.rootDirectory.compatPath), databasePath: \(configuration.databasePath.compatPath)")
+            let message = """
+                LocalMediaKit Configured with PathConfiguration
+                rootDirectory: \(pathManager.rootDirectory.compatPath)
+                databasePath: \(configuration.databasePath.compatPath)
+                imagePath: \(pathManager.imagePath(for: MediaID(), ext: ".heic").compatPath)
+                livePhotoPath: \(pathManager.livePhotoPath(for: MediaID()).image.compatPath)
+                videoPath: \(pathManager.videoPath(for: MediaID()).video.compatPath)
+                """
+            
+            print(message)
         }
+        #endif
     }
     
     
