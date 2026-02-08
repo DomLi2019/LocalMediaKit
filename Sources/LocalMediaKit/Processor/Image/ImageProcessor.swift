@@ -251,6 +251,7 @@ public final class ImageProcessor: ImageProcessing, Sendable {
     // MARK: - 尺寸
     public func imageSize(from data: Data) throws -> CGSize {
         guard let source = CGImageSourceCreateWithData(data as CFData, nil) else {
+            debugPrint("[imageSize(from:)] throw when creating CGImageSource")
             throw MediaKitError.decodingFailed(underlying: nil)
         }
         
@@ -258,6 +259,7 @@ public final class ImageProcessor: ImageProcessing, Sendable {
               let width = properties[kCGImagePropertyWidth] as? Int,
               let height = properties[kCGImagePropertyHeight] as? Int
         else {
+            debugPrint("[imageSize(from:)] throw when getting image source properties")
             throw MediaKitError.decodingFailed(underlying: nil)
         }
         
@@ -272,6 +274,7 @@ public final class ImageProcessor: ImageProcessing, Sendable {
     /// 从url解析图片尺寸
     public func imageSize(at url: URL) throws -> CGSize {
         guard let source = CGImageSourceCreateWithURL(url as CFURL, nil) else {
+            debugPrint("[imageSize(at:)] throw when creating CGImageSource")
             throw MediaKitError.decodingFailed(underlying: nil)
         }
         
@@ -279,6 +282,7 @@ public final class ImageProcessor: ImageProcessing, Sendable {
               let width = properties[kCGImagePropertyWidth] as? Int,
               let height = properties[kCGImagePropertyHeight] as? Int
         else {
+            debugPrint("[imageSize(at:)] throw when getting image source properties")
             throw MediaKitError.decodingFailed(underlying: nil)
         }
         

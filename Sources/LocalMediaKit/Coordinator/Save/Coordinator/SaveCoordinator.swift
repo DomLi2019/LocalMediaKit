@@ -178,13 +178,16 @@ public final class SaveCoordinator: Sendable {
         
         /// 写入文件
         try await writeAssetResource(imageResource, to: imageURL)
+        
+        /// 重新读取图片数据
+        let imageData = try await storageManager.read(from: imageURL)
                 
         /// 保存缩略图
         var thumbnailRelativePath: String? = nil
         if let thumbnailSize {
             thumbnailRelativePath = await generateAndSaveThumbnail(
                 id: id,
-                source: .url(imageURL),
+                source: .data(imageData),
                 size: thumbnailSize
             )
         }
@@ -193,7 +196,7 @@ public final class SaveCoordinator: Sendable {
         let metadata = try await createMetadata(
             id: id,
             type: .image,
-            imageData: nil,
+            imageData: imageData,
             mediaURL: .image(imageURL),
             thumbnailPath: thumbnailRelativePath,
             userInfo: userInfo
@@ -367,8 +370,8 @@ public final class SaveCoordinator: Sendable {
         
         var thumbnailRelativePath: String? = nil
         if request.generateThumbnail {
-            let thumbnail = try await videoProcessor.extractThumbnail(from: sourceURL)
-            if let jpgData = thumbnail.jpegData(compressionQuality: 1.0) {
+            if let thumbnail = try? await videoProcessor.extractThumbnail(from: sourceURL),
+               let jpgData = thumbnail.jpegData(compressionQuality: 1.0) {
                 
                 try? await storageManager.write(jpgData, to: thumbnailTargetURL)
                 thumbnailRelativePath = pathManager.relativePath(for: thumbnailTargetURL)
@@ -418,8 +421,8 @@ public final class SaveCoordinator: Sendable {
         switch type {
         case .image, .animatedImage:
             let imageURL = mediaURL.primaryImageURL
-            let size = imageData != nil ? try imageProcessor.imageSize(from: imageData!) : try imageProcessor.imageSize(at: imageURL)
-            let fileSize = imageData != nil ? Int64(imageData!.count) : try storageManager.fileSize(at: imageURL)
+            let size = imageData != nil ? try? imageProcessor.imageSize(from: imageData!) : try? imageProcessor.imageSize(at: imageURL)
+            let fileSize = (imageData != nil ? Int64(imageData!.count) : try? storageManager.fileSize(at: imageURL))  ?? 0
             
             return MediaMetadata(
                 id: id,
@@ -427,8 +430,8 @@ public final class SaveCoordinator: Sendable {
                 fileSize: fileSize,
                 imagePath: pathManager.relativePath(for: imageURL),
                 thumbnailPath: thumbnailPath,
-                pixelWidth: Int(size.width),
-                pixelHeight: Int(size.height),
+                pixelWidth: size != nil ? Int(size!.width) : nil,
+                pixelHeight: size != nil ? Int(size!.height) : nil,
                 userInfo: userInfo
             )
             
@@ -436,11 +439,11 @@ public final class SaveCoordinator: Sendable {
             let imageURL = mediaURL.primaryImageURL
             let videoURL = mediaURL.primaryVideoURL!
             
-            let imageSize = try imageProcessor.imageSize(from: imageData!)
-            let videoInfo = try await videoProcessor.videoInfo(of: videoURL)
+            let imageSize = try? imageProcessor.imageSize(from: imageData!)
+            let videoInfo = try? await videoProcessor.videoInfo(of: videoURL)
             
-            let imageFileSize = try storageManager.fileSize(at: imageURL)
-            let videoFileSize = try storageManager.fileSize(at: videoURL)
+            let imageFileSize = (try? storageManager.fileSize(at: imageURL)) ?? 0
+            let videoFileSize = (try? storageManager.fileSize(at: videoURL)) ?? 0
             let totalSize = imageFileSize + videoFileSize
             
             return MediaMetadata(
@@ -450,17 +453,17 @@ public final class SaveCoordinator: Sendable {
                 imagePath: pathManager.relativePath(for: imageURL),
                 videoPath: pathManager.relativePath(for: videoURL),
                 thumbnailPath: thumbnailPath,
-                pixelWidth: Int(imageSize.width),
-                pixelHeight: Int(imageSize.height),
-                duration: videoInfo.duration,
-                videoCodec: videoInfo.codec,
+                pixelWidth: imageSize != nil ? Int(imageSize!.width) : nil,
+                pixelHeight: imageSize != nil ? Int(imageSize!.height) : nil,
+                duration: videoInfo?.duration,
+                videoCodec: videoInfo?.codec,
                 assetIdentifier: assetIdentifier,
                 userInfo: userInfo
             )
         case .video:
             let videoURL = mediaURL.primaryVideoURL!
-            let info = try await videoProcessor.videoInfo(of: videoURL)
-            let fileSize = try storageManager.fileSize(at: videoURL)
+            let info = try? await videoProcessor.videoInfo(of: videoURL)
+            let fileSize = (try? storageManager.fileSize(at: videoURL)) ?? 0
             
             return MediaMetadata(
                 id: id,
@@ -468,10 +471,10 @@ public final class SaveCoordinator: Sendable {
                 fileSize: fileSize,
                 videoPath: pathManager.relativePath(for: videoURL),
                 thumbnailPath: thumbnailPath,
-                pixelWidth: Int(info.dimensions.width),
-                pixelHeight: Int(info.dimensions.height),
-                duration: info.duration,
-                videoCodec: info.codec,
+                pixelWidth: info != nil ? Int(info!.dimensions.width) : nil,
+                pixelHeight: info != nil ? Int(info!.dimensions.height) : nil,
+                duration: info?.duration,
+                videoCodec: info?.codec,
                 userInfo: userInfo
             )
         }

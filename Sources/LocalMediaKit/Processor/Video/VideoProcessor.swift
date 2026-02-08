@@ -98,6 +98,7 @@ public final class VideoProcessor: VideoProcessing, Sendable {
         
         /// 校验是否存在有效视频轨道
         guard let track = tracks.first else {
+            debugPrint("[videoInfo] no video track found")
             throw MediaKitError.invalidVideo(reason: "No video track found")
         }
         
