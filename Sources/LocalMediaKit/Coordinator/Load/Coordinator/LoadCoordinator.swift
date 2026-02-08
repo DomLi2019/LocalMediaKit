@@ -91,6 +91,25 @@ public final class LoadCoordinator: Sendable {
             return cached
         }
         
+        /// 查磁盘缓存
+        if let thumbnailPath = metadata.thumbnailPath {
+            let thumbnailURL = pathManager.fullPath(for: thumbnailPath)
+            
+            if storageManager.exists(at: thumbnailURL) {
+                let imageData = try await storageManager.read(from: thumbnailURL)
+                let thumbnail = try await imageProcessor.decode(imageData)
+                debugPrint("loadThumbnail read from disk cache: \(thumbnailURL)")
+                
+                /// 放入缓存
+                if let cache = thumbnailCache {
+                    await cache.set(cacheKey, value: thumbnail)
+                }
+                
+                return thumbnail
+            }
+        }
+        
+        // 从源文件生产缩略图
         /// 获取完整路径
         let fileURL = pathManager.fullPath(for: metadata.primaryPath)
         
