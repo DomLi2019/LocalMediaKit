@@ -388,20 +388,81 @@ public final class LoadCoordinator: Sendable {
     /// 获取文件 URL（不加载到内存）
     /// - Parameter id: 媒体 ID
     /// - Returns: 文件 URL
-    public func fileURL(for id: MediaID) async throws -> URL {
+    public func loadMediaURL(for id: MediaID) async throws -> MediaURL {
         guard let metadata = try await metadataManager.get(id: id) else {
             throw MediaKitError.mediaNotFound(id)
         }
         
-        let url = pathManager.fullPath(for: metadata.primaryPath)
-        
-        guard storageManager.exists(at: url) else {
-            throw MediaKitError.fileCorrupted(path: url.compatPath)
+        switch metadata.type {
+        case .image, .animatedImage:
+            /// 获取Path
+            guard let imagePath = metadata.imagePath else {
+                throw MediaKitError.invalidMediaData(reason: "Image path is nil ")
+            }
+            
+            /// 获取完整 URL
+            let imageURL = pathManager.fullPath(for: imagePath)
+            
+            /// 检查 URL 是否存在
+            guard storageManager.exists(at: imageURL) else {
+                throw MediaKitError.fileCorrupted(path: imagePath)
+            }
+            
+            return .image(imageURL)
+            
+        case .livePhoto:
+            /// 获取Path
+            guard let imagePath = metadata.imagePath, let videoPath = metadata.videoPath else {
+                throw MediaKitError.invalidMediaData(reason: "Meida paths are nil ")
+            }
+            /// 获取完整 URL
+            let imageURL = pathManager.fullPath(for: imagePath)
+            let videoURL = pathManager.fullPath(for: videoPath)
+            
+            /// 检查 URL 是否存在
+            guard storageManager.exists(at: imageURL), storageManager.exists(at: videoURL) else {
+                throw MediaKitError.fileCorrupted(path: imagePath)
+            }
+            
+            /// 返回
+            return .livePhoto(imageURL: imageURL, videoURL: videoURL)
+            
+        case .video:
+            /// 获取Path
+            guard let videoPath = metadata.videoPath else {
+                throw MediaKitError.invalidMediaData(reason: "Video path is nil ")
+            }
+            /// 获取 URL
+            let videoURL = pathManager.fullPath(for: videoPath)
+            
+            /// 检查 URL 是否存在
+            guard storageManager.exists(at: videoURL) else {
+                throw MediaKitError.fileCorrupted(path: videoPath)
+            }
+            
+            /// 检查缩略图是否存在
+            if let thumbnailPath = metadata.thumbnailPath {
+                let thumbnailURL = pathManager.fullPath(for: thumbnailPath)
+                if storageManager.exists(at: thumbnailURL) {
+                    return .video(avatarURL: thumbnailURL, videoURL: videoURL)
+                }
+            }
+            
+            return .video(avatarURL: nil, videoURL: videoURL)
         }
-        
-        return url
     }
     
+    
+    
+    
+    // MARK: - 获取媒体元数据
+    public func loadMediaMetadata(for id: MediaID) async throws -> MediaMetadata {
+        guard let metadata = try await metadataManager.get(id: id) else {
+            throw MediaKitError.mediaNotFound(id)
+        }
+        return metadata
+    }
+        
     
     
     

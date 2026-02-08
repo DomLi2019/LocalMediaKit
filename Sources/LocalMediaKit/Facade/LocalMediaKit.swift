@@ -424,8 +424,13 @@ extension LocalMediaKit {
 // MARK: - 工具方法
 extension LocalMediaKit {
     /// 获取媒体主文件URL
-    public func fileURL(for id: MediaID) async throws -> URL {
-        return try await loadCoordinator.fileURL(for: id)
+    public func loadMediaURL(for id: MediaID) async throws -> MediaURL {
+        return try await loadCoordinator.loadMediaURL(for: id)
+    }
+    
+    /// 获取媒体元数据
+    public func loadMediaMetadata(for id: MediaID) async throws -> MediaMetadata {
+        return try await loadCoordinator.loadMediaMetadata(for: id)
     }
     
     /// 拷贝文件

@@ -70,7 +70,7 @@ public final class SaveCoordinator: Sendable {
         /// 编码图片，获取拓展名
         let (imageData, ext) = try await prepareImageData(request)
         /// 生成路径
-        let imageURL = pathManager.generatePath(for: id, type: request.type, ext: ext).primaryImageURL
+        let imageURL = pathManager.generatePath(for: id, type: request.type, ext: ext).primaryImageURL!
         /// 检查磁盘空间 + 写入文件
         try await storageManager.write(imageData, to: imageURL)
         
@@ -119,7 +119,7 @@ public final class SaveCoordinator: Sendable {
         let ext = storageManager.extractExtension(url: url)
         
         /// 生成路径
-        let imageURL = pathManager.generatePath(for: id, type: .image, ext: ext).primaryImageURL
+        let imageURL = pathManager.generatePath(for: id, type: .image, ext: ext).primaryImageURL!
         
         /// 检查磁盘空间 + 拷贝文件
         try await storageManager.copy(at: url, to: imageURL)
@@ -171,7 +171,7 @@ public final class SaveCoordinator: Sendable {
         let ext = (imageResource.originalFilename as NSString).pathExtension.lowercased()
         
         /// 生成路径
-        let imageURL = pathManager.generatePath(for: id, type: .image, ext: ext).primaryImageURL
+        let imageURL = pathManager.generatePath(for: id, type: .image, ext: ext).primaryImageURL!
         
         /// 确保路径存在
         try storageManager.ensureParentDirectoryExists(at: imageURL)
@@ -296,7 +296,7 @@ public final class SaveCoordinator: Sendable {
         
         /// 获取写入文件路径
         let urls = pathManager.generatePath(for: id, type: .livePhoto)
-        let imageTargeteURL = urls.primaryImageURL
+        let imageTargeteURL = urls.primaryImageURL!
         let videoTargetURL = urls.primaryVideoURL!
         
         /// 写入/拷贝到目标路径
@@ -360,7 +360,7 @@ public final class SaveCoordinator: Sendable {
         
         let urls = pathManager.generatePath(for: id, type: .video, ext: ext)
         let videoTargetURL = urls.primaryVideoURL!
-        let thumbnailTargetURL = urls.primaryImageURL   /// 缩略图存储路径
+        let thumbnailTargetURL = urls.primaryImageURL!   /// 缩略图存储路径
         
         do {
             try await storageManager.copy(at: sourceURL, to: videoTargetURL)
@@ -420,7 +420,7 @@ public final class SaveCoordinator: Sendable {
     ) async throws -> MediaMetadata {
         switch type {
         case .image, .animatedImage:
-            let imageURL = mediaURL.primaryImageURL
+            let imageURL = mediaURL.primaryImageURL!
             let size = imageData != nil ? try? imageProcessor.imageSize(from: imageData!) : try? imageProcessor.imageSize(at: imageURL)
             let fileSize = (imageData != nil ? Int64(imageData!.count) : try? storageManager.fileSize(at: imageURL))  ?? 0
             
@@ -436,7 +436,7 @@ public final class SaveCoordinator: Sendable {
             )
             
         case .livePhoto:
-            let imageURL = mediaURL.primaryImageURL
+            let imageURL = mediaURL.primaryImageURL!
             let videoURL = mediaURL.primaryVideoURL!
             
             let imageSize = try? imageProcessor.imageSize(from: imageData!)

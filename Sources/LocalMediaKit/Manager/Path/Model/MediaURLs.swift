@@ -11,11 +11,11 @@ import Foundation
 public enum MediaURL: Sendable {
     case image(URL)
     case livePhoto(imageURL: URL, videoURL: URL)
-    case video(avatarURL: URL, videoURL: URL)
+    case video(avatarURL: URL?, videoURL: URL)
     
     
     /// 图片链接
-    public var primaryImageURL: URL {
+    public var primaryImageURL: URL? {
         switch self {
         case .image(let url):
             return url
