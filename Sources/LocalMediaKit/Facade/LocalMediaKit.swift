@@ -428,6 +428,16 @@ extension LocalMediaKit {
         return try await loadCoordinator.fileURL(for: id)
     }
     
+    /// 拷贝文件
+    public func copy(at source: URL, to destination: URL) async throws {
+        try await storageManager.copy(at: source, to: destination)
+    }
+    
+    /// 拷贝到临时目录
+    public func copyToTemp(at url: URL) async throws -> URL {
+        return try await storageManager.copyToTemp(at: url)
+    }
+    
     /// 获取磁盘可用空间
     public var volumnAvailableCapacity: Int64 {
         return storageManager.availableDiskSpace()

@@ -145,6 +145,39 @@ public final class StorageManager: StorageManaging, Sendable {
     
     
     
+    // MARK: - 拷贝到临时目录
+    public func copyToTemp(at url: URL) async throws -> URL {
+        return try await Task.detached { [self] in
+            try self.copyToTemp(at: url)
+        }.value
+    }
+    
+    public func copyToTemp(at url: URL) throws -> URL {
+        /// 检查文件是否存在
+        guard exists(at: url) else {
+            throw MediaKitError.fileNotFound(url)
+        }
+        /// 检查磁盘空间
+        let available = availableDiskSpace()
+        let fileSize = try fileSize(at: url)
+        let required = fileSize + safetyMargin
+        
+        guard available >= required else {
+            throw MediaKitError.insufficientDiskSpace(required: fileSize, available: available)
+        }
+        
+        /// 获取临时文件路径
+        let tempURL = temporaryFileURL(url: url)
+        
+        /// 先尝试拷贝到临时文件路径，确保文件能完整拷贝
+        try FileManager.default.copyItem(at: url, to: tempURL)
+        
+        return tempURL
+    }
+    
+    
+    
+    
     // MARK: - 文件大小
     public func fileSize(at url: URL) throws -> Int64 {
         /// 获取文件的[FileAttributeKey: Any]字典，如果文件不存在会抛出错误
@@ -248,13 +281,13 @@ public final class StorageManager: StorageManaging, Sendable {
     
     /// 随机创建临时文件路径
     public func temporaryURL() -> URL {
-        /// 随机创建一个文件名 + 拓展名
+        /// 随机创建一个文件名
         let fileName = UUID().uuidString
         
         /// 获取系统默认临时路径
         let tempDirectory = FileManager.default.temporaryDirectory
         
-        /// 返回临时文件路径（带拓展名）
+        /// 返回临时文件路径（不带拓展名）
         return tempDirectory.appendingPath(fileName)
     }
     
