@@ -434,8 +434,8 @@ extension LocalMediaKit {
     }
     
     /// 拷贝到临时目录
-    public func copyToTemp(at url: URL) async throws -> URL {
-        return try await storageManager.copyToTemp(at: url)
+    public func copyToTemp(at url: URL) throws -> URL {
+        return try storageManager.copyToTemp(at: url)
     }
     
     /// 获取磁盘可用空间

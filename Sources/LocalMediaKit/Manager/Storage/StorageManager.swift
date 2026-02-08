@@ -146,12 +146,7 @@ public final class StorageManager: StorageManaging, Sendable {
     
     
     // MARK: - 拷贝到临时目录
-    public func copyToTemp(at url: URL) async throws -> URL {
-        return try await Task.detached { [self] in
-            try self.copyToTemp(at: url)
-        }.value
-    }
-    
+    /// 拷贝到临时路径
     public func copyToTemp(at url: URL) throws -> URL {
         /// 检查文件是否存在
         guard exists(at: url) else {
