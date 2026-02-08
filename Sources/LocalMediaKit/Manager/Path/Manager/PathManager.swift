@@ -111,8 +111,8 @@ public final class PathManager: PathManaging, Sendable {
     
     public func videoPath(for id: MediaID, ext: String = "mp4") -> (image: URL, video: URL) {
         return (
-            buildMediaPath(subDirectory: configuration.videoDirectory, key: CacheKey.video(id: id), ext: ext),
-            buildMediaPath(subDirectory: configuration.videoDirectory, key: CacheKey.videoThumbnail(id: id), ext: "jpg")
+            buildMediaPath(subDirectory: configuration.videoDirectory, key: CacheKey.videoThumbnail(id: id), ext: "jpg"),
+            buildMediaPath(subDirectory: configuration.videoDirectory, key: CacheKey.video(id: id), ext: ext)
         )
     }
     
