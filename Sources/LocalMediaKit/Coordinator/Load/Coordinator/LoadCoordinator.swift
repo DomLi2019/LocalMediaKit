@@ -233,7 +233,18 @@ public final class LoadCoordinator: Sendable {
         /// 组装实况图
         let livePhoto = try await livePhotoProcessor.assemble(imageURL: imageURL, videoURL: videoURL)
         
-        return .livePhoto(livePhoto: livePhoto, thumbnail: nil)
+        /// 获取缩略图路径
+        let thumbnailURL: URL
+        if let thumbnailPath = metadata.thumbnailPath {
+            thumbnailURL = pathManager.fullPath(for: thumbnailPath)
+        } else {
+            thumbnailURL = imageURL
+        }
+        /// 获取缩略图
+        let thumbnailData = try await storageManager.read(from: thumbnailURL)
+        let thumbnail = try await imageProcessor.decode(thumbnailData)
+        
+        return .livePhoto(livePhoto: livePhoto, thumbnail: thumbnail)
     }
     
     
@@ -321,13 +332,20 @@ public final class LoadCoordinator: Sendable {
     ///   - imageURL: 图片路径
     ///   - videoURL: 视频路径
     /// - Returns: 实况图对象
-    public func loadLivePhoto(imageURL: URL, videoURL: URL) async throws -> PHLivePhoto {
+    public func loadLivePhoto(imageURL: URL, videoURL: URL) async throws -> MediaResource {
         /// 检查文件是否存在
         guard storageManager.exists(at: imageURL), storageManager.exists(at: videoURL) else {
             throw MediaKitError.fileNotFound(imageURL)
         }
+        
+        /// 获取LivePhoto
         let livePhoto = try await livePhotoProcessor.assemble(imageURL: imageURL, videoURL: videoURL)
-        return livePhoto
+        
+        /// 获取缩略图
+        let thumbnailData = try await storageManager.read(from: imageURL)
+        let thumbnail = try await imageProcessor.decode(thumbnailData)
+        
+        return .livePhoto(livePhoto: livePhoto, thumbnail: thumbnail)
     }
     
     
