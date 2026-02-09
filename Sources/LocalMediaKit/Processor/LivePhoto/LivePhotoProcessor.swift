@@ -41,7 +41,7 @@ public final class LivePhotoProcessor: LivePhotoProcessing, Sendable {
     ///   - imageURL: 图片URL
     ///   - videoURL: 视频URL
     /// - Returns: 实况图对象
-    public func assemble(imageURL: URL, videoURL: URL) async throws -> PHLivePhoto {
+    public func assemble(imageURL: URL, videoURL: URL, targetSize: CGSize = .zero) async throws -> PHLivePhoto {
         let state = RequestState()
         
         return try await withTaskCancellationHandler {
@@ -52,7 +52,7 @@ public final class LivePhotoProcessor: LivePhotoProcessing, Sendable {
                 let requestID = PHLivePhoto.request(
                     withResourceFileURLs: [imageURL, videoURL],
                     placeholderImage: nil,
-                    targetSize: .zero,
+                    targetSize: targetSize,
                     contentMode: .default
                 ) { livePhoto, info in
                     /// 被取消的情况

@@ -9,5 +9,5 @@ import Foundation
 import Photos
 
 public protocol LivePhotoProcessing: Sendable {
-    func assemble(imageURL: URL, videoURL: URL) async throws -> PHLivePhoto
+    func assemble(imageURL: URL, videoURL: URL, targetSize: CGSize) async throws -> PHLivePhoto
 }
