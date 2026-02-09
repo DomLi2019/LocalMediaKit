@@ -42,31 +42,68 @@ public final class LivePhotoProcessor: LivePhotoProcessing, Sendable {
     ///   - videoURL: 视频URL
     /// - Returns: 实况图对象
     public func assemble(imageURL: URL, videoURL: URL) async throws -> PHLivePhoto {
-        return try await withCheckedThrowingContinuation { continuation in
-            PHLivePhoto.request(
-                withResourceFileURLs: [imageURL, videoURL],
-                placeholderImage: nil,
-                targetSize: .zero,
-                contentMode: .default
-            ) { livePhoto, info in
-                /// 错误检查
-                if let error = info[PHLivePhotoInfoErrorKey] as? Error {
-                    continuation.resume(throwing: MediaKitError.livePhotoAssemblyFailed(underlying: error))
-                    return
+        let state = RequestState()
+        
+        return try await withTaskCancellationHandler {
+            // 检查任务是否被取消
+            try Task.checkCancellation()
+            
+            return try await withCheckedThrowingContinuation { continuation in
+                let requestID = PHLivePhoto.request(
+                    withResourceFileURLs: [imageURL, videoURL],
+                    placeholderImage: nil,
+                    targetSize: .zero,
+                    contentMode: .default
+                ) { livePhoto, info in
+                    /// 被取消的情况
+                    if let cancelled = info[PHLivePhotoInfoCancelledKey] as? Bool, cancelled {
+                        continuation.resume(throwing: CancellationError())
+                        return
+                    }
+                    
+                    /// 错误检查
+                    if let error = info[PHLivePhotoInfoErrorKey] as? Error {
+                        continuation.resume(throwing: MediaKitError.livePhotoAssemblyFailed(underlying: error))
+                        return
+                    }
+                    
+                    /// 等待非降级版本
+                    if let isDegraded = info[PHLivePhotoInfoIsDegradedKey] as? Bool, isDegraded {
+                        return
+                    }
+                    
+                    /// 获取实况图
+                    guard let livePhoto = livePhoto else {
+                        continuation.resume(throwing: MediaKitError.livePhotoAssemblyFailed(underlying: nil))
+                        return
+                    }
+                    
+                    continuation.resume(returning: livePhoto)
                 }
                 
-                /// 等待非降级版本
-                if let isDegraded = info[PHLivePhotoInfoIsDegradedKey] as? Bool, isDegraded {
-                    return
-                }
-                
-                /// 获取实况图
-                guard let livePhoto = livePhoto else {
-                    continuation.resume(throwing: MediaKitError.livePhotoAssemblyFailed(underlying: nil))
-                    return
-                }
-                
-                continuation.resume(returning: livePhoto)
+                state.setRequestID(requestID)
+            }
+        } onCancel: {
+            if let id = state.getRequestID() {
+                PHLivePhoto.cancelRequest(withRequestID: id)
+            }
+        }
+
+        /// 线程安全的请求状态定义
+        final class RequestState: @unchecked Sendable {
+            private let lock = NSLock()
+            private var requestID: PHLivePhotoRequestID?
+            
+            func setRequestID(_ id: PHLivePhotoRequestID) {
+                lock.lock()
+                defer { lock.unlock() }
+                requestID = id
+            }
+            
+            func getRequestID() -> PHLivePhotoRequestID? {
+                lock.lock()
+                defer { lock.unlock() }
+                return requestID
             }
         }
     }
