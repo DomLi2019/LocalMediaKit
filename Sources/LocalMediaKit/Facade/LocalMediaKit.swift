@@ -144,8 +144,8 @@ public final class LocalMediaKit: Sendable {
     }
     
     /// URL 加载实况图
-    public func loadLivePhoto(imageURL: URL, videoURL: URL) async throws -> MediaResource {
-        return try await loadCoordinator.loadLivePhoto(imageURL: imageURL, videoURL: videoURL)
+    public func loadLivePhoto(imageURL: URL, videoURL: URL, targetSize: CGSize = .zero) async throws -> MediaResource {
+        return try await loadCoordinator.loadLivePhoto(imageURL: imageURL, videoURL: videoURL, targetSize: targetSize)
     }
     
     

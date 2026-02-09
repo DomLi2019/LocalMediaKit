@@ -206,12 +206,9 @@ public final class LoadCoordinator: Sendable {
     
     
     // MARK: - 加载实况图
-    public func loadLivePhoto(metadata: MediaMetadata, request: LoadRequest, targetSize: CGSize = .zero) async throws -> MediaResource {
-        /// 如果有目标尺寸，返回静态图
-        if let targetSize = request.targetSize {
-            let thumbnail = try await loadThumbnail(id: metadata.id, size: targetSize)
-            return .image(thumbnail)
-        }
+    public func loadLivePhoto(metadata: MediaMetadata, request: LoadRequest) async throws -> MediaResource {
+        /// 目标尺寸
+        var targetSize = request.targetSize ?? .zero
         
         /// 检查文件路径
         guard let imagePath = metadata.imagePath,
