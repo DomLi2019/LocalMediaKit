@@ -25,11 +25,11 @@ public final class MetadataManager: MetadataManaging, Sendable {
         
         var config = Configuration()
         #if DEBUG
-        config.prepareDatabase { db in
-            db.trace {
-                print("SQL: \($0)")     /// 打印所有执行的SQL
-            }
-        }
+//        config.prepareDatabase { db in
+//            db.trace {
+//                print("SQL: \($0)")     /// 打印所有执行的SQL
+//            }
+//        }
         #endif
         
         self.dbQueue = try DatabaseQueue(path: databasePath.compatPath, configuration: config)
