@@ -15,8 +15,8 @@ public final class ImageProcessor: ImageProcessing, Sendable {
     /// 图片编码解码属于CPU密集型任务，不适合并发，容易内存爆炸
     private let processingQueue: DispatchQueue = DispatchQueue(
         label: "com.localmediakit.imageprocessor",
-        qos: .userInitiated,
-        attributes: .concurrent
+        qos: .userInitiated
+//        attributes: .concurrent
     )
     
     
