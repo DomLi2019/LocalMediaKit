@@ -41,7 +41,7 @@ public final class CacheManager<T: Sendable>: Sendable {
     
     // MARK: - 公开方法
     /// 获取缓存值
-    public func get(_ key: String) async -> T? {
+    public func get(_ key: String) -> T? {
         /// 检查内存
         if let value = memoryCache.get(key) {
             return value
@@ -54,14 +54,14 @@ public final class CacheManager<T: Sendable>: Sendable {
     
     
     /// 写入缓存
-    public func set(_ key: String, value: T, cost: Int) async {
+    public func set(_ key: String, value: T, cost: Int) {
         memoryCache.set(key, value: value, cost: cost)
         /// TODO：写入磁盘缓存
     }
     
     
     /// 图片写入缓存，自动计算开销
-    public func set(_ key: String, value: T) async where T: CacheCostCalculable {
+    public func set(_ key: String, value: T) where T: CacheCostCalculable {
         let cost = value.cost
         memoryCache.set(key, value: value, cost: cost)
         /// TODO：写入磁盘缓存

@@ -134,6 +134,11 @@ public final class LocalMediaKit: Sendable {
         return try await loadCoordinator.loadThumbnail(id: id, size: size)
     }
     
+    /// 同步加载缩略图
+    public func loadThumbnail(id: MediaID, size: CGSize, screenScale: CGFloat) throws -> UIImage {
+        return try loadCoordinator.loadThumbnail(id: id, size: size, screenScale: screenScale)
+    }
+    
     
     
     

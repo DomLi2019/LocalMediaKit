@@ -266,7 +266,8 @@ public final class SaveCoordinator: Sendable {
         size: CGSize
     ) async -> String? {
         do {
-            let thumbnail = try await imageProcessor.thumbnail(at: source, targetSize: size)
+            let screenScale = await MainActor.run { UIScreen.main.scale }
+            let thumbnail = try await imageProcessor.thumbnail(at: source, targetSize: size, screenScale: screenScale)
             let thumbPath = pathManager.thumbnailPath(for: id, size: size)
             
             /// 转为Data并写入
@@ -370,7 +371,7 @@ public final class SaveCoordinator: Sendable {
         
         var thumbnailRelativePath: String? = nil
         if request.generateThumbnail {
-            if let thumbnail = try? await videoProcessor.extractThumbnail(from: sourceURL),
+            if let thumbnail = try? await videoProcessor.extractThumbnail(from: sourceURL, at: nil),
                let jpgData = thumbnail.jpegData(compressionQuality: 1.0) {
                 
                 try? await storageManager.write(jpgData, to: thumbnailTargetURL)

@@ -87,7 +87,7 @@ public final class LoadCoordinator: Sendable {
         let cacheKey = CacheKey.thumbnail(id: id, size: size)
         
         /// 查缓存
-        if let cache = thumbnailCache, let cached = await cache.get(cacheKey) {
+        if let cache = thumbnailCache, let cached = cache.get(cacheKey) {
             return cached
         }
         
@@ -102,7 +102,7 @@ public final class LoadCoordinator: Sendable {
                 
                 /// 放入缓存
                 if let cache = thumbnailCache {
-                    await cache.set(cacheKey, value: thumbnail)
+                    cache.set(cacheKey, value: thumbnail)
                 }
                 
                 return thumbnail
@@ -117,15 +117,16 @@ public final class LoadCoordinator: Sendable {
         let thumbnail: UIImage
         switch metadata.type {
         case .image, .animatedImage, .livePhoto:
-            thumbnail = try await imageProcessor.thumbnail(at: .url(fileURL), targetSize: size)
+            let screenScale = await MainActor.run { UIScreen.main.scale }
+            thumbnail = try await imageProcessor.thumbnail(at: .url(fileURL), targetSize: size, screenScale: screenScale)
             
         case .video:
-            thumbnail = try await videoProcessor.extractThumbnail(from: fileURL)
+            thumbnail = try await videoProcessor.extractThumbnail(from: fileURL, at: nil)
         }
         
         /// 放入缓存
         if let cache = thumbnailCache {
-            await cache.set(cacheKey, value: thumbnail)
+            cache.set(cacheKey, value: thumbnail)
         }
         
         return thumbnail
@@ -147,7 +148,7 @@ public final class LoadCoordinator: Sendable {
         
         /// 查缓存
         if request.cachePolicy.useMemoryCache, let cache = imageCache {
-            if let cached = await cache.get(cacheKey) {
+            if let cached = cache.get(cacheKey) {
                 return .image(cached)
             }
         }
@@ -169,7 +170,7 @@ public final class LoadCoordinator: Sendable {
         
         /// 写入缓存
         if request.cachePolicy.useMemoryCache, let cache = imageCache {
-            await cache.set(cacheKey, value: image)
+            cache.set(cacheKey, value: image)
         }
         
         return .image(image)
@@ -189,11 +190,11 @@ public final class LoadCoordinator: Sendable {
         var thumbnail: UIImage?
         let cacheKey = CacheKey.videoThumbnail(id: metadata.id)
         
-        if let cache = thumbnailCache, let cached = await cache.get(cacheKey) {
+        if let cache = thumbnailCache, let cached = cache.get(cacheKey) {
             thumbnail = cached
         } else {
             do {
-                thumbnail = try await videoProcessor.extractThumbnail(from: fileURL)
+                thumbnail = try await videoProcessor.extractThumbnail(from: fileURL, at: nil)
             } catch {
                 debugPrint("loadVideo 视频缩略图加载失败: \(error)")
             }
@@ -208,7 +209,7 @@ public final class LoadCoordinator: Sendable {
     // MARK: - 加载实况图
     public func loadLivePhoto(metadata: MediaMetadata, request: LoadRequest) async throws -> MediaResource {
         /// 目标尺寸
-        var targetSize = request.targetSize ?? .zero
+        let targetSize = request.targetSize ?? .zero
         
         /// 检查文件路径
         guard let imagePath = metadata.imagePath,
@@ -260,7 +261,7 @@ public final class LoadCoordinator: Sendable {
         
         /// 查缓存
         if request.cachePolicy.useMemoryCache, let cache = dataCache {
-            if let cachedData = await cache.get(cacheKey) {
+            if let cachedData = cache.get(cacheKey) {
                 let preview = try await imageProcessor.decode(cachedData)
                 return .animatedImage(data: cachedData, preview: preview)
             }
@@ -283,7 +284,7 @@ public final class LoadCoordinator: Sendable {
         
         /// 写入缓存
         if request.cachePolicy.useMemoryCache, let cache = dataCache {
-            await cache.set(cacheKey, value: data)
+            cache.set(cacheKey, value: data)
         }
         
         return .animatedImage(data: data, preview: preview)
@@ -303,7 +304,7 @@ public final class LoadCoordinator: Sendable {
         let key = cacheKey ?? url.lastPathComponent
         
         /// 查缓存
-        if let cache = imageCache, let cached = await cache.get(key) {
+        if let cache = imageCache, let cached = cache.get(key) {
             return cached
         }
         
@@ -318,7 +319,7 @@ public final class LoadCoordinator: Sendable {
         
         /// 写入缓存
         if let cache = imageCache {
-            await cache.set(key, value: image)
+            cache.set(key, value: image)
         }
         return image
     }
@@ -351,7 +352,7 @@ public final class LoadCoordinator: Sendable {
         let key = cacheKey ?? "\(url.lastPathComponent)_\(Int(size.width))x\(Int(size.height))"
         
         /// 查缓存
-        if let cache = thumbnailCache, let cached = await cache.get(key) {
+        if let cache = thumbnailCache, let cached = cache.get(key) {
             debugPrint("🟢 loadThumbnail 缩略图缓存命中: \(key)")
             return cached
         }
@@ -363,11 +364,12 @@ public final class LoadCoordinator: Sendable {
         }
         
         /// 获取缩略图
-        let thumbnail = try await imageProcessor.thumbnail(at: .url(url), targetSize: size)
+        let screenScale = await MainActor.run { UIScreen.main.scale }
+        let thumbnail = try await imageProcessor.thumbnail(at: .url(url), targetSize: size, screenScale: screenScale)
         
         /// 写入缓存
         if let cache = thumbnailCache {
-            await cache.set(key, value: thumbnail)
+            cache.set(key, value: thumbnail)
         }
         return thumbnail
     }
@@ -378,7 +380,7 @@ public final class LoadCoordinator: Sendable {
         let key = cacheKey ?? "\(url.lastPathComponent)_\(Int(size.width))x\(Int(size.height))"
         
         /// 查缓存
-        if let cache = thumbnailCache, let cached = await cache.get(key) {
+        if let cache = thumbnailCache, let cached = cache.get(key) {
             return cached
         }
         
@@ -387,11 +389,11 @@ public final class LoadCoordinator: Sendable {
             throw MediaKitError.fileNotFound(url)
         }
         /// 获取缩略图
-        let thumbnail = try await videoProcessor.extractThumbnail(from: url)
+        let thumbnail = try await videoProcessor.extractThumbnail(from: url, at: nil)
         
         /// 写入缓存
         if let cache = thumbnailCache {
-            await cache.set(key, value: thumbnail)
+            cache.set(key, value: thumbnail)
         }
         return thumbnail
     }
@@ -494,5 +496,69 @@ public final class LoadCoordinator: Sendable {
                 debugPrint("preloadThumbnail 失败, 媒体 ID： \(id)")
             }
         }
+    }
+    
+    
+    
+    
+    // MARK: - 同步版本函数
+    
+    /// 同步加载缩略图
+    /// - Parameters:
+    ///   - id: 媒体 ID
+    ///   - size: 缩略图尺寸
+    /// - Returns: 缩略图
+    public func loadThumbnail(id: MediaID, size: CGSize, screenScale: CGFloat) throws -> UIImage {
+        /// 获取元数据
+        guard let metadata = try metadataManager.get(id: id) else {
+            throw MediaKitError.mediaNotFound(id)
+        }
+        
+        /// 组件Key
+        let cacheKey = CacheKey.thumbnail(id: id, size: size)
+        
+        /// 查缓存
+        if let cache = thumbnailCache, let cached = cache.get(cacheKey) {
+            return cached
+        }
+        
+        /// 查磁盘缓存
+        if let thumbnailPath = metadata.thumbnailPath {
+            let thumbnailURL = pathManager.fullPath(for: thumbnailPath)
+            
+            if storageManager.exists(at: thumbnailURL),
+               let thumbnail = UIImage(contentsOfFile: thumbnailURL.compatPath)
+            {
+                debugPrint("loadThumbnail read from disk cache: \(thumbnailURL)")
+                
+                /// 放入缓存
+                if let cache = thumbnailCache {
+                    cache.set(cacheKey, value: thumbnail)
+                }
+                
+                return thumbnail
+            }
+        }
+        
+        // 从源文件生产缩略图
+        /// 获取完整路径
+        let fileURL = pathManager.fullPath(for: metadata.primaryPath)
+        
+        /// 获取缩略图
+        let thumbnail: UIImage
+        switch metadata.type {
+        case .image, .animatedImage, .livePhoto:
+            thumbnail = try imageProcessor.thumbnail(at: .url(fileURL), targetSize: size, screenScale: screenScale)
+            
+        case .video:
+            thumbnail = try videoProcessor.extractThumbnail(from: fileURL, at: nil)
+        }
+        
+        /// 放入缓存
+        if let cache = thumbnailCache {
+            cache.set(cacheKey, value: thumbnail)
+        }
+        
+        return thumbnail
     }
 }

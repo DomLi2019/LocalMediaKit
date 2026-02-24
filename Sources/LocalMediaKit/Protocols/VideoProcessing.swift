@@ -10,14 +10,9 @@ import AVFoundation
 
 public protocol VideoProcessing: Sendable {
     func extractThumbnail(from url: URL, at time: CMTime?) async throws -> UIImage
+    func extractThumbnail(from url: URL, at time: CMTime?) throws -> UIImage
     func videoInfo(of url: URL) async throws -> VideoInfo
     func isValid(at url: URL) async -> Bool
     func duration(from url: URL) async throws -> TimeInterval
     func detectVideoFormat(at url: URL) -> String
-}
-
-extension VideoProcessing {
-    public func extractThumbnail(from url: URL) async throws -> UIImage {
-        try await extractThumbnail(from: url, at: nil)
-    }
 }

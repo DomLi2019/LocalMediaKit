@@ -122,23 +122,37 @@ public final class ImageProcessor: ImageProcessing, Sendable {
     
     
     // MARK: - 缩略图
-    public func thumbnail(at source: ImageSource, targetSize: CGSize) async throws -> UIImage {
-        let scale = await MainActor.run { UIScreen.main.scale }
+    public func thumbnail(at source: ImageSource, targetSize: CGSize, screenScale: CGFloat) async throws -> UIImage {
         return try await withCheckedThrowingContinuation { continuation in
             processingQueue.async {
                 do {
-                    let thumbnail: UIImage
-                    switch source {
-                    case .data(let data):
-                        thumbnail = try self.downsample(data, to: targetSize, scale: scale)
-                    case .url(let url):
-                        thumbnail = try self.downsample(url, to: targetSize, scale: scale)
-                    }
+                    let thumbnail = try self.thumbnail(at: source, targetSize: targetSize, screenScale: screenScale)
                     continuation.resume(returning: thumbnail)
                 } catch {
                     continuation.resume(throwing: MediaKitError.decodingFailed(underlying: error))
                 }
             }
+        }
+    }
+    
+    
+    /// 缩略图同步版本
+    /// - Parameters:
+    ///   - source: 图片资源
+    ///   - targetSize: 缩略图尺寸
+    /// - Returns: 缩略图
+    public func thumbnail(at source: ImageSource, targetSize: CGSize, screenScale: CGFloat) throws -> UIImage {
+        do {
+            let thumbnail: UIImage
+            switch source {
+            case .data(let data):
+                thumbnail = try self.downsample(data, to: targetSize, scale: screenScale)
+            case .url(let url):
+                thumbnail = try self.downsample(url, to: targetSize, scale: screenScale)
+            }
+            return thumbnail
+        } catch {
+            throw MediaKitError.decodingFailed(underlying: error)
         }
     }
     

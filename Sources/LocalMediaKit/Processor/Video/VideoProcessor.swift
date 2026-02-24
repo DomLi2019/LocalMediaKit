@@ -30,27 +30,37 @@ public final class VideoProcessor: VideoProcessing, Sendable {
         return try await withCheckedThrowingContinuation { continuation in
             processingQueue.async {
                 do {
-                    /// 基于url创建视频资源对象，能解析视频/音频的元数据、轨道信息等
-                    let asset = AVURLAsset(url: url)
-                    /// 创建视频资源的缩略图生成器
-                    /// AVAssetImageGenerator 是 AVFoundation 专门用于从视频中提取单帧图片（缩略图）的类
-                    let generator = AVAssetImageGenerator(asset: asset)
-                    /// 应用旋转效果
-                    generator.appliesPreferredTrackTransform = true
-                    /// 设置缩略图宽高最大不超过1024
-                    generator.maximumSize = CGSize(width: 1024, height: 1024)
-                    /// 获取截图的时间，如果没有就用0秒。600表示把秒分成600份，作为时间刻度。
-                    let actualTime = time ?? CMTime(seconds: 0, preferredTimescale: 600)
-                    /// 截图
-                    let cgImage = try generator.copyCGImage(at: actualTime, actualTime: nil)
-                    /// 创建UIImage
-                    let image = UIImage(cgImage: cgImage)
-                    /// 返回图片
+                    let image = try self.extractThumbnail(from: url, at: time)
                     continuation.resume(returning: image)
                 } catch {
-                    continuation.resume(throwing: MediaKitError.decodingFailed(underlying: error))
+                    continuation.resume(throwing: error)
                 }
             }
+        }
+    }
+    
+    /// 同步提取视频截图
+    public func extractThumbnail(from url: URL, at time: CMTime? = nil) throws -> UIImage {
+        do {
+            /// 基于url创建视频资源对象，能解析视频/音频的元数据、轨道信息等
+            let asset = AVURLAsset(url: url)
+            /// 创建视频资源的缩略图生成器
+            /// AVAssetImageGenerator 是 AVFoundation 专门用于从视频中提取单帧图片（缩略图）的类
+            let generator = AVAssetImageGenerator(asset: asset)
+            /// 应用旋转效果
+            generator.appliesPreferredTrackTransform = true
+            /// 设置缩略图宽高最大不超过1024
+            generator.maximumSize = CGSize(width: 1024, height: 1024)
+            /// 获取截图的时间，如果没有就用0秒。600表示把秒分成600份，作为时间刻度。
+            let actualTime = time ?? CMTime(seconds: 0, preferredTimescale: 600)
+            /// 截图
+            let cgImage = try generator.copyCGImage(at: actualTime, actualTime: nil)
+            /// 创建UIImage
+            let image = UIImage(cgImage: cgImage)
+            /// 返回图片
+            return image
+        } catch {
+            throw MediaKitError.decodingFailed(underlying: error)
         }
     }
     

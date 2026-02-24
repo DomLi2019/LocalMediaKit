@@ -117,6 +117,20 @@ public final class MetadataManager: MetadataManaging, Sendable {
     }
     
     
+    /// 同步查询媒体id对应的媒体数据
+    /// - Parameter id: 媒体id
+    /// - Returns: 媒体元数据
+    public func get(id: MediaID) throws -> MediaMetadata? {
+        do {
+            return try dbQueue.read { db in
+                try MediaMetadata.fetchOne(db, key: id.raw)
+            }
+        } catch {
+            throw MediaKitError.databaseError(underlying: error)
+        }
+    }
+    
+    
     /// 更新userInfo
     /// - Parameters:
     ///   - id: 媒体id
