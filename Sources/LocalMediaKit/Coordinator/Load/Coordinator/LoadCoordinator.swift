@@ -363,6 +363,9 @@ public final class LoadCoordinator: Sendable {
             throw MediaKitError.fileNotFound(url)
         }
         
+        /// 检查任务是否被取消，避免后续IO操作无效占用资源
+        try Task.checkCancellation()
+        
         /// 获取缩略图
         let thumbnail: UIImage
         switch mediaType {
