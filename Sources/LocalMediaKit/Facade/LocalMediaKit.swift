@@ -155,14 +155,14 @@ public final class LocalMediaKit: Sendable {
     
     
     /// URL 加载缩略图
-    public func loadThumbnail(at url: URL, size: CGSize, cacheKey: String? = nil) async throws -> UIImage {
-        return try await loadCoordinator.loadThumbnail(at: url, size: size, cacheKey: cacheKey)
+    public func loadThumbnail(at url: URL, mediaType: MediaType, size: CGSize, cacheKey: String? = nil) async throws -> UIImage {
+        return try await loadCoordinator.loadThumbnail(at: url, mediaType: mediaType, size: size, cacheKey: cacheKey)
     }
     
     
-    /// URL 加载视频缩略图
-    public func loadVideoThumbnail(at url: URL, size: CGSize, cacheKey: String? = nil) async throws -> UIImage {
-        return try await loadCoordinator.loadVideoThumbnail(at: url, size: size, cacheKey: cacheKey)
+    /// URL 加载缩略图 - 同步
+    public func loadThumbnail(at url: URL, mediaType: MediaType, size: CGSize, cacheKey: String? = nil, screenScale: CGFloat) throws -> UIImage {
+        return try loadCoordinator.loadThumbnail(at: url, mediaType: mediaType, size: size, cacheKey: cacheKey, screenScale: screenScale)
     }
     
     
