@@ -30,9 +30,9 @@ public struct PathConfiguration: Sendable {
     // MARK: - 初始化方法 - 带默认值的
     public init(
         rootDirectory: URL? = nil,
-        imageDirectory: String = MediaType.image.directory,
-        livePhotoDirectory: String = MediaType.livePhoto.directory,
-        videoDirectory: String = MediaType.video.directory,
+        imageDirectory: String = LocalMediaType.image.directory,
+        livePhotoDirectory: String = LocalMediaType.livePhoto.directory,
+        videoDirectory: String = LocalMediaType.video.directory,
         cacheDirectory: String = "Cache"
     ) {
         self.rootDirectory = rootDirectory
@@ -50,7 +50,7 @@ public struct PathConfiguration: Sendable {
     
     
     /// 获取对应类型的子目录路径
-    public func subDirectory(for type: MediaType) -> String {
+    public func subDirectory(for type: LocalMediaType) -> String {
         switch type {
         case .image, .animatedImage:
             return imageDirectory

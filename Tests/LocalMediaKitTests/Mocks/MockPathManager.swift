@@ -19,7 +19,7 @@ final class MockPathManager: PathManaging, @unchecked Sendable {
     }
 
     // MARK: - Protocol Methods
-    func generatePath(for id: MediaID, type: MediaType, ext: String) -> MediaURL {
+    func generatePath(for id: MediaID, type: LocalMediaType, ext: String) -> MediaURL {
         generatePathCallCount += 1
         if let result = generatePathResult { return result }
         switch type {

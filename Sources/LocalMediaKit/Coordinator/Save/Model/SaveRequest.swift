@@ -11,7 +11,7 @@ import CoreGraphics
 /// 媒体保存请求
 public struct SaveRequest: Sendable {
     /// 媒体类型
-    public let type: MediaType
+    public let type: LocalMediaType
     
     /// 媒体数据
     public let data: MediaData
@@ -28,7 +28,7 @@ public struct SaveRequest: Sendable {
     
     /// 初始化
     public init(
-        type: MediaType,
+        type: LocalMediaType,
         data: MediaData,
         userInfo: [String : String]? = nil,
         generateThumbnail: Bool = true,

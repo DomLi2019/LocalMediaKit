@@ -15,7 +15,7 @@ public struct MediaMetadata: Codable, Sendable, Identifiable {
     public let id: MediaID
     
     /// 媒体类型
-    public let type: MediaType
+    public let type: LocalMediaType
     
     /// 创建时间
     public let createdAt: Date
@@ -74,7 +74,7 @@ public struct MediaMetadata: Codable, Sendable, Identifiable {
     // MARK: - 初始化
     public init(
         id: MediaID = MediaID(),
-        type: MediaType,
+        type: LocalMediaType,
         createdAt: Date = Date(),
         fileSize: Int64,
         imagePath: String? = nil,

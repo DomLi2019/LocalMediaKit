@@ -339,7 +339,7 @@ public final class MetadataManager: MetadataManaging, Sendable {
     
     
     /// 获取对应类型的媒体
-    public func fetch(types: [MediaType], limit: Int = 100, offset: Int = 0) async throws -> [MediaMetadata] {
+    public func fetch(types: [LocalMediaType], limit: Int = 100, offset: Int = 0) async throws -> [MediaMetadata] {
         try await query(MetadataFilter(types: types, limit: limit, offset: offset))
     }
     
@@ -390,10 +390,10 @@ public final class MetadataManager: MetadataManaging, Sendable {
                 let totalCount = try MediaMetadata.fetchCount(db)
                 let totalSize = try Int64.fetchOne(db, sql: "SELECT SUM(fileSize) FROM media") ?? 0
                 
-                var countByType: [MediaType: Int] = [:]
-                var sizeByType: [MediaType: Int64] = [:]
+                var countByType: [LocalMediaType: Int] = [:]
+                var sizeByType: [LocalMediaType: Int64] = [:]
                 
-                for type in MediaType.allCases {
+                for type in LocalMediaType.allCases {
                     let count = try MediaMetadata
                         .filter(MediaMetadata.CodingKeys.type == type)
                         .fetchCount(db)

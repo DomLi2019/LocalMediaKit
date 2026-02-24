@@ -1,5 +1,5 @@
 //
-//  MediaType.swift
+//  LocalMediaType.swift
 //  媒体类型枚举
 //
 //  Created by 庄七七 on 2026/1/24.
@@ -8,7 +8,7 @@
 import Foundation
 import GRDB
 
-public enum MediaType: Int, Hashable, Equatable, Codable, Sendable, CaseIterable {
+public enum LocalMediaType: Int, Hashable, Equatable, Codable, Sendable, CaseIterable {
     case image = 0
     case livePhoto = 1
     case video = 2
@@ -44,4 +44,4 @@ public enum MediaType: Int, Hashable, Equatable, Codable, Sendable, CaseIterable
 }
 
 /// GRDB支持
-extension MediaType: DatabaseValueConvertible {}
+extension LocalMediaType: DatabaseValueConvertible {}

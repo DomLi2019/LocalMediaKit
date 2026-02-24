@@ -9,7 +9,7 @@ import Foundation
 
 /// SQL查询过滤条件
 public struct MetadataFilter: Sendable {
-    public var types: [MediaType]?
+    public var types: [LocalMediaType]?
     public var createdAfter: Date?
     public var createdBefore: Date?
     public var minFileSize: Int64?
@@ -28,7 +28,7 @@ public struct MetadataFilter: Sendable {
     
     
     public init(
-        types: [MediaType]? = nil,
+        types: [LocalMediaType]? = nil,
         createdAfter: Date? = nil,
         createdBefore: Date? = nil,
         minFileSize: Int64? = nil,

@@ -44,7 +44,7 @@ public final class PathManager: PathManaging, Sendable {
     ///   - type: 媒体类型
     ///   - ext: 媒体拓展名
     /// - Returns: 路径url
-    public func generatePath(for id: MediaID, type: MediaType, ext: String = "heic") -> MediaURL {
+    public func generatePath(for id: MediaID, type: LocalMediaType, ext: String = "heic") -> MediaURL {
         switch type {
         case .image:
             let url = imagePath(for: id, ext: ext)

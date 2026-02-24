@@ -348,7 +348,7 @@ public final class LoadCoordinator: Sendable {
     
     
     /// 用URL加载缩略图
-    public func loadThumbnail(at url: URL, mediaType: MediaType, size: CGSize, cacheKey: String? = nil) async throws -> UIImage {
+    public func loadThumbnail(at url: URL, mediaType: LocalMediaType, size: CGSize, cacheKey: String? = nil) async throws -> UIImage {
         let key = cacheKey ?? "\(url.lastPathComponent)_\(Int(size.width))x\(Int(size.height))"
         
         /// 查缓存
@@ -549,7 +549,7 @@ public final class LoadCoordinator: Sendable {
     
     
     /// 用 URL 加载缩略图
-    public func loadThumbnail(at url: URL, mediaType: MediaType, size: CGSize, cacheKey: String? = nil, screenScale: CGFloat) throws -> UIImage {
+    public func loadThumbnail(at url: URL, mediaType: LocalMediaType, size: CGSize, cacheKey: String? = nil, screenScale: CGFloat) throws -> UIImage {
         let key = cacheKey ?? "\(url.lastPathComponent)_\(Int(size.width))x\(Int(size.height))"
         
         /// 查缓存

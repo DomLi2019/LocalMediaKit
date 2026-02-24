@@ -412,7 +412,7 @@ public final class SaveCoordinator: Sendable {
     /// - Returns: 媒体元数据
     private func createMetadata(
         id: MediaID,
-        type: MediaType,
+        type: LocalMediaType,
         imageData: Data? = nil,
         mediaURL: MediaURL,
         thumbnailPath: String? = nil,

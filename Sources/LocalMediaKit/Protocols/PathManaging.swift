@@ -8,14 +8,14 @@
 import Foundation
 
 public protocol PathManaging: Sendable {
-    func generatePath(for id: MediaID, type: MediaType, ext: String) -> MediaURL
+    func generatePath(for id: MediaID, type: LocalMediaType, ext: String) -> MediaURL
     func fullPath(for relativePath: String) -> URL
     func relativePath(for url: URL) -> String
     func thumbnailPath(for id: MediaID, size: CGSize) -> URL
 }
 
 extension PathManaging {
-    public func generatePath(for id: MediaID, type: MediaType) -> MediaURL {
+    public func generatePath(for id: MediaID, type: LocalMediaType) -> MediaURL {
         generatePath(for: id, type: type, ext: "heic")
     }
 }
