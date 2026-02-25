@@ -10,7 +10,7 @@ import UIKit
 public protocol ImageProcessing: Sendable {
     func decode(_ data: Data) async throws -> UIImage
     func encode(_ image: UIImage, format: ImageFormat) async throws -> Data
-    func thumbnail(at source: ImageSource, targetSize: CGSize, screenScale: CGFloat) async throws -> UIImage
+    func thumbnail(at source: ImageSource, targetSize: CGSize) async throws -> UIImage
     func thumbnail(at source: ImageSource, targetSize: CGSize, screenScale: CGFloat) throws -> UIImage
     func detectFormat(from data: Data) -> ImageFormat?
     func imageSize(from data: Data) throws -> CGSize

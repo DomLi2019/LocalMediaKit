@@ -266,8 +266,7 @@ public final class SaveCoordinator: Sendable {
         size: CGSize
     ) async -> String? {
         do {
-            let screenScale = await MainActor.run { UIScreen.main.scale }
-            let thumbnail = try await imageProcessor.thumbnail(at: source, targetSize: size, screenScale: screenScale)
+            let thumbnail = try await imageProcessor.thumbnail(at: source, targetSize: size)
             let thumbPath = pathManager.thumbnailPath(for: id, size: size)
             
             /// 转为Data并写入

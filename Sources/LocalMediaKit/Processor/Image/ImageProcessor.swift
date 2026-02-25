@@ -11,13 +11,16 @@ import UniformTypeIdentifiers
 
 
 public final class ImageProcessor: ImageProcessing, Sendable {
-    /// 专用串行队列
-    /// 图片编码解码属于CPU密集型任务，不适合并发，容易内存爆炸
+    /// 专用并行队列
+    /// 图片编码解码属于CPU密集型任务，不适合过多并发，容易内存爆炸，需要配合semaphore使用
     private let processingQueue: DispatchQueue = DispatchQueue(
         label: "com.localmediakit.imageprocessor",
-        qos: .userInitiated
-//        attributes: .concurrent
+        qos: .userInitiated,
+        attributes: .concurrent
     )
+    
+    /// 信号量控制并发
+    private let semaphore = DispatchSemaphore(value: 4)
     
     
     // MARK: - 初始化
@@ -28,28 +31,38 @@ public final class ImageProcessor: ImageProcessing, Sendable {
     
     // MARK: - 图片编码/解码
     public func decode(_ data: Data) async throws -> UIImage {
-        return try await withCheckedThrowingContinuation { continuation in
+        try Task.checkCancellation()
+        
+        await withCheckedContinuation { continuation in
             processingQueue.async {
-                guard let image = UIImage(data: data) else {
-                    continuation.resume(throwing: MediaKitError.decodingFailed(underlying: nil))
-                    return
-                }
-                continuation.resume(returning: image)
+                self.semaphore.wait()
+                continuation.resume()
             }
         }
+        defer { semaphore.signal() }
+        
+        try Task.checkCancellation()
+        
+        guard let image = UIImage(data: data) else {
+            throw MediaKitError.decodingFailed(underlying: nil)
+        }
+        return image
     }
     
     public func encode(_ image: UIImage, format: ImageFormat) async throws -> Data {
-        return try await withCheckedThrowingContinuation { continuation in
+        try Task.checkCancellation()
+        
+        await withCheckedContinuation { continuation in
             processingQueue.async {
-                do {
-                    let data = try self.encodeImage(image, format: format)
-                    continuation.resume(returning: data)
-                } catch {
-                    continuation.resume(throwing: error)
-                }
+                self.semaphore.wait()
+                continuation.resume()
             }
         }
+        defer { semaphore.signal() }
+        
+        try Task.checkCancellation()
+        
+        return try self.encodeImage(image, format: format)
     }
     
     
@@ -122,19 +135,24 @@ public final class ImageProcessor: ImageProcessing, Sendable {
     
     
     // MARK: - 缩略图
-    public func thumbnail(at source: ImageSource, targetSize: CGSize, screenScale: CGFloat) async throws -> UIImage {
+    public func thumbnail(at source: ImageSource, targetSize: CGSize) async throws -> UIImage {
         try Task.checkCancellation()
         
-        return try await withCheckedThrowingContinuation { continuation in
+        await withCheckedContinuation { continuation in
             processingQueue.async {
-                do {
-                    let thumbnail = try self.thumbnail(at: source, targetSize: targetSize, screenScale: screenScale)
-                    continuation.resume(returning: thumbnail)
-                } catch {
-                    continuation.resume(throwing: MediaKitError.decodingFailed(underlying: error))
-                }
+                self.semaphore.wait()
+                continuation.resume()
             }
         }
+        defer { semaphore.signal() }
+        
+        try Task.checkCancellation()
+        
+        let screenScale = await MainActor.run { UIScreen.main.scale }
+        
+        try Task.checkCancellation()
+        
+        return try thumbnail(at: source, targetSize: targetSize, screenScale: screenScale)
     }
     
     

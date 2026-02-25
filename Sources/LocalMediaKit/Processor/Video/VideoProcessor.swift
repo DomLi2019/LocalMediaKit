@@ -13,8 +13,11 @@ public final class VideoProcessor: VideoProcessing, Sendable {
     /// 处理队列
     private let processingQueue = DispatchQueue(
         label: "com.localmediakit.videoprocessor",
-        qos:.userInitiated
+        qos:.userInitiated,
+        attributes: .concurrent
     )
+    
+    private let semaphore = DispatchSemaphore(value: 4)
     
     
     // MARK: - 初始化
@@ -27,20 +30,23 @@ public final class VideoProcessor: VideoProcessing, Sendable {
     
     /// 提取视频截图
     public func extractThumbnail(from url: URL, at time: CMTime? = nil) async throws -> UIImage {
-        return try await withCheckedThrowingContinuation { continuation in
+        try Task.checkCancellation()
+        
+        await withCheckedContinuation { continuation in
             processingQueue.async {
-                do {
-                    let image = try self.extractThumbnail(from: url, at: time)
-                    continuation.resume(returning: image)
-                } catch {
-                    continuation.resume(throwing: error)
-                }
+                self.semaphore.wait()
+                continuation.resume()
             }
         }
+        defer { semaphore.signal() }
+        
+        try Task.checkCancellation()
+        
+        return try extractThumbnailSync(from: url, at: time)
     }
     
     /// 同步提取视频截图
-    public func extractThumbnail(from url: URL, at time: CMTime? = nil) throws -> UIImage {
+    public func extractThumbnailSync(from url: URL, at time: CMTime? = nil) throws -> UIImage {
         do {
             /// 基于url创建视频资源对象，能解析视频/音频的元数据、轨道信息等
             let asset = AVURLAsset(url: url)

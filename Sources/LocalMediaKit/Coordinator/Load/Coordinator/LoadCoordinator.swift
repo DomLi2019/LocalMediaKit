@@ -117,8 +117,7 @@ public final class LoadCoordinator: Sendable {
         let thumbnail: UIImage
         switch metadata.type {
         case .image, .animatedImage, .livePhoto:
-            let screenScale = await MainActor.run { UIScreen.main.scale }
-            thumbnail = try await imageProcessor.thumbnail(at: .url(fileURL), targetSize: size, screenScale: screenScale)
+            thumbnail = try await imageProcessor.thumbnail(at: .url(fileURL), targetSize: size)
             
         case .video:
             thumbnail = try await videoProcessor.extractThumbnail(from: fileURL, at: nil)
@@ -370,8 +369,7 @@ public final class LoadCoordinator: Sendable {
         let thumbnail: UIImage
         switch mediaType {
         case .image, .animatedImage, .livePhoto:
-            let screenScale = await MainActor.run { UIScreen.main.scale }
-            thumbnail = try await imageProcessor.thumbnail(at: .url(url), targetSize: size, screenScale: screenScale)
+            thumbnail = try await imageProcessor.thumbnail(at: .url(url), targetSize: size)
             
         case .video:
             thumbnail = try await videoProcessor.extractThumbnail(from: url, at: nil)
@@ -537,7 +535,7 @@ public final class LoadCoordinator: Sendable {
             thumbnail = try imageProcessor.thumbnail(at: .url(fileURL), targetSize: size, screenScale: screenScale)
             
         case .video:
-            thumbnail = try videoProcessor.extractThumbnail(from: fileURL, at: nil)
+            thumbnail = try videoProcessor.extractThumbnailSync(from: fileURL, at: nil)
         }
         
         /// 放入缓存
@@ -574,7 +572,7 @@ public final class LoadCoordinator: Sendable {
             thumbnail = try imageProcessor.thumbnail(at: .url(url), targetSize: size, screenScale: screenScale)
             
         case .video:
-            thumbnail = try videoProcessor.extractThumbnail(from: url, at: nil)
+            thumbnail = try videoProcessor.extractThumbnailSync(from: url, at: nil)
         }
         
         /// 写入缓存
