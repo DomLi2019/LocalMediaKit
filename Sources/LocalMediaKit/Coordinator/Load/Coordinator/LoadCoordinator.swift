@@ -352,11 +352,11 @@ public final class LoadCoordinator: Sendable {
         
         /// 查缓存
         if let cache = thumbnailCache, let cached = cache.get(key) {
-            debugPrint("🟢 loadThumbnail 缩略图缓存命中: \(key)")
+//            debugPrint("🟢 loadThumbnail 缩略图缓存命中: \(key)")
             return cached
         }
         
-        debugPrint("🔴 loadThumbnail 缩略图缓存未命中，从文件加载: \(key)")
+//        debugPrint("🔴 loadThumbnail 缩略图缓存未命中，从文件加载: \(key)")
         /// 检查文件是否存在
         guard storageManager.exists(at: url) else {
             throw MediaKitError.fileNotFound(url)
@@ -555,11 +555,11 @@ public final class LoadCoordinator: Sendable {
         
         /// 查缓存
         if let cache = thumbnailCache, let cached = cache.get(key) {
-            debugPrint("🟢 loadThumbnail 缩略图缓存命中: \(key)")
+//            debugPrint("🟢 loadThumbnail 缩略图缓存命中: \(key)")
             return cached
         }
         
-        debugPrint("🔴 loadThumbnail 缩略图缓存未命中，从文件加载: \(key)")
+//        debugPrint("🔴 loadThumbnail 缩略图缓存未命中，从文件加载: \(key)")
         /// 检查文件是否存在
         guard storageManager.exists(at: url) else {
             throw MediaKitError.fileNotFound(url)
