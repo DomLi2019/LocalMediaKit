@@ -172,7 +172,7 @@ public final class LocalMediaKit: Sendable {
     /// 用SaveRequest保存
     /// - Parameter request: 保存请求
     /// - Returns: 媒体 ID
-    public func save(_ request: SaveRequest) async throws -> MediaID {
+    public func save(_ request: SaveRequest) async throws -> MediaMetadata {
         return try await saveCoordinator.save(request)
     }
     
@@ -191,7 +191,7 @@ public final class LocalMediaKit: Sendable {
         imageData: Data,
         thumbnailSize: CGSize? = nil,
         userInfo: [String: String]? = nil
-    ) async throws -> MediaID {
+    ) async throws -> MediaMetadata {
         let request = SaveRequest.image(imageData, thumbnailSize: thumbnailSize, userInfo: userInfo)
         return try await saveCoordinator.save(request)
     }
@@ -208,20 +208,20 @@ public final class LocalMediaKit: Sendable {
         format: ImageFormat,
         thumbnailSize: CGSize? = nil,
         userInfo: [String: String]? = nil
-    ) async throws -> MediaID {
+    ) async throws -> MediaMetadata {
         let request = SaveRequest.image(image, format: format, thumbnailSize: thumbnailSize, userInfo: userInfo)
         return try await saveCoordinator.save(request)
     }
     
     
     /// 保存图片 URL
-    public func saveImage(at url: URL, thumbnailSize: CGSize? = nil, userInfo: [String: String]? = nil) async throws -> MediaID {
+    public func saveImage(at url: URL, thumbnailSize: CGSize? = nil, userInfo: [String: String]? = nil) async throws -> MediaMetadata {
         return try await saveCoordinator.saveImage(at: url, thumbnailSize: thumbnailSize, userInfo: userInfo)
     }
     
     
     /// 保存图片 PHAsset
-    public func saveImage(from asset: PHAsset, thumbnailSize: CGSize? = nil, userInfo: [String: String]? = nil) async throws -> MediaID {
+    public func saveImage(from asset: PHAsset, thumbnailSize: CGSize? = nil, userInfo: [String: String]? = nil) async throws -> MediaMetadata {
         return try await saveCoordinator.saveImage(from: asset, thumbnailSize: thumbnailSize, userInfo: userInfo)
     }
     
@@ -241,7 +241,7 @@ public final class LocalMediaKit: Sendable {
         videoURL: URL,
         thumbnailSize: CGSize? = nil,
         userInfo: [String: String]? = nil
-    ) async throws -> MediaID {
+    ) async throws -> MediaMetadata {
         let request = SaveRequest.livePhoto(imageData: imageData, videoURL: videoURL, thumbnailSize: thumbnailSize, userInfo: userInfo)
         return try await saveCoordinator.save(request)
     }
@@ -254,7 +254,7 @@ public final class LocalMediaKit: Sendable {
         livePhoto: PHLivePhoto,
         thumbnailSize: CGSize? = nil,
         userInfo: [String: String]? = nil
-    ) async throws -> MediaID {
+    ) async throws -> MediaMetadata {
         let (imageData, videoURL) = try await livePhotoProcessor.disassemble(livePhoto)
         return try await saveLivePhoto(imageData: imageData, videoURL: videoURL, thumbnailSize: thumbnailSize, userInfo: userInfo)
     }
@@ -274,7 +274,7 @@ public final class LocalMediaKit: Sendable {
         at url: URL,
         thumbnailSize: CGSize? = nil,
         userInfo: [String: String]? = nil
-    ) async throws -> MediaID {
+    ) async throws -> MediaMetadata {
         let request = SaveRequest.video(at: url, thumbnailSize: thumbnailSize, userInfo: userInfo)
         return try await saveCoordinator.save(request)
     }

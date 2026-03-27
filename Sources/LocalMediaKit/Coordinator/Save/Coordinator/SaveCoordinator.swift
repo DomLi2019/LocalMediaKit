@@ -48,7 +48,7 @@ public final class SaveCoordinator: Sendable {
     
     // MARK: - 对外方法
     
-    public func save(_ request: SaveRequest) async throws -> MediaID {
+    public func save(_ request: SaveRequest) async throws -> MediaMetadata {
         switch request.type {
         case .image, .animatedImage:
             return try await saveImage(request)
@@ -64,7 +64,7 @@ public final class SaveCoordinator: Sendable {
     
     // MARK: - 图片
     /// 保存图片
-    public func saveImage(_ request: SaveRequest) async throws -> MediaID {
+    public func saveImage(_ request: SaveRequest) async throws -> MediaMetadata {
         /// 生成ID
         let id = MediaID()
         /// 编码图片，获取拓展名
@@ -102,7 +102,7 @@ public final class SaveCoordinator: Sendable {
             throw error
         }
         
-        return id
+        return metadata
     }
     
     
@@ -111,7 +111,7 @@ public final class SaveCoordinator: Sendable {
         at url: URL,
         thumbnailSize: CGSize? = nil,
         userInfo: [String: String]? = nil
-    ) async throws -> MediaID {
+    ) async throws -> MediaMetadata {
         /// 生成ID
         let id = MediaID()
         
@@ -152,12 +152,12 @@ public final class SaveCoordinator: Sendable {
             throw error
         }
         
-        return id
+        return metadata
     }
     
     
     /// PHAsset 保存图片
-    public func saveImage(from asset: PHAsset, thumbnailSize: CGSize? = nil, userInfo: [String: String]? = nil) async throws -> MediaID {
+    public func saveImage(from asset: PHAsset, thumbnailSize: CGSize? = nil, userInfo: [String: String]? = nil) async throws -> MediaMetadata {
         /// 生成ID
         let id = MediaID()
         
@@ -210,7 +210,7 @@ public final class SaveCoordinator: Sendable {
             throw error
         }
         
-        return id
+        return metadata
     }
     
     /// 桥接 PHAssetResourceManager 接口 writeData
@@ -286,7 +286,7 @@ public final class SaveCoordinator: Sendable {
     
     // MARK: - 实况图
     /// 保存实况图
-    public func saveLivePhoto(_ request: SaveRequest) async throws -> MediaID {
+    public func saveLivePhoto(_ request: SaveRequest) async throws -> MediaMetadata {
         guard case .livePhoto(let imageData, let videoURL) = request.data else {
             throw MediaKitError.invalidMediaData(reason: "Invalid data for live photo type")
         }
@@ -337,7 +337,7 @@ public final class SaveCoordinator: Sendable {
             throw error
         }
         
-        return id
+        return metadata
     }
     
     
@@ -345,7 +345,7 @@ public final class SaveCoordinator: Sendable {
     
     // MARK: - 视频
     /// 保存视频
-    public func saveVideo(_ request: SaveRequest) async throws -> MediaID {
+    public func saveVideo(_ request: SaveRequest) async throws -> MediaMetadata {
         guard case .videoURL(let sourceURL) = request.data else {
             throw MediaKitError.invalidMediaData(reason: "Invalid data for video type")
         }
@@ -394,7 +394,7 @@ public final class SaveCoordinator: Sendable {
             throw error
         }
         
-        return id
+        return metadata
     }
     
     
