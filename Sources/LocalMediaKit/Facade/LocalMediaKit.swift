@@ -438,6 +438,11 @@ extension LocalMediaKit {
         return pathManager.fullPath(for: relativePath)
     }
     
+    /// 拼接完整路径
+    public func relativePath(for url: URL) -> String {
+        return pathManager.relativePath(for: url)
+    }
+    
     /// 获取媒体元数据
     public func loadMediaMetadata(for id: MediaID) async throws -> MediaMetadata {
         return try await loadCoordinator.loadMediaMetadata(for: id)
